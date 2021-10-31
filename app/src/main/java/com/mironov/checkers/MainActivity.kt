@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import androidx.core.view.marginLeft
 import android.view.MotionEvent
 import android.view.View.OnTouchListener
+import androidx.core.view.doOnPreDraw
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +42,6 @@ class MainActivity : AppCompatActivity() {
 
         findViews()
         addLayouts()
-        addChips()
     }
 
     override fun onResume() {
@@ -61,10 +61,19 @@ class MainActivity : AppCompatActivity() {
             darkChip.layoutParams.height = tileSize
             darkChip.layoutParams.width = tileSize
 
-            val view = tilesArray[i][0].findViewById<View>(R.id.tileImage) as ImageView
+            val view = tilesArray[0][i]
 
-            darkChip.translationX = view.x+view.width / 2 - darkChip.width / 2
-            darkChip.translationY = view.y+view.height / 2 - darkChip.height / 2
+            val offsetViewBounds = Rect()
+            //returns the visible bounds
+            view.getDrawingRect(offsetViewBounds)
+            // calculates the relative coordinates to the parent
+            frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
+
+            val relativeTop: Int = offsetViewBounds.top
+            val relativeLeft: Int = offsetViewBounds.left
+
+            darkChip.translationX = relativeLeft.toFloat()
+            darkChip.translationY = relativeTop.toFloat()
 
             darkChip.setOnTouchListener { v, event ->
                 when (event.action) {
@@ -83,6 +92,7 @@ class MainActivity : AppCompatActivity() {
     private fun addLayouts() {
 
         flowLayout.removeAllViews()
+        frameLayout.doOnPreDraw { addChips() }
 
         var j = 0
 
