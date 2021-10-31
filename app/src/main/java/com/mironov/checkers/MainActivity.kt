@@ -8,17 +8,23 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.util.DisplayMetrics
 import android.util.Log
+import android.widget.FrameLayout
 import androidx.core.view.marginLeft
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var flowLayout: FlowLayout
+    private lateinit var frameLayout: FrameLayout
+    private lateinit var darkChip:View
 
     private var screenWidth=0
 
     private fun findViews() {
         flowLayout = findViewById(R.id.flowLayout)
+        frameLayout = findViewById(R.id.frame)
+        darkChip = this.layoutInflater.inflate(R.layout.chip, null)
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,10 +43,14 @@ class MainActivity : AppCompatActivity() {
         addLayouts()
     }
 
-    @SuppressLint( "SetTextI18n", "InflateParams", "UseCompatLoadingForDrawables")
+
     private fun addLayouts() {
 
         flowLayout.removeAllViews()
+        frameLayout.addView(darkChip,0,0)
+
+        darkChip.layoutParams.height=80
+        darkChip.layoutParams.width=80
 
         val tileSize=(screenWidth-2*flowLayout.marginLeft)/ 8
         var j=0
@@ -65,7 +75,15 @@ class MainActivity : AppCompatActivity() {
             flowLayout.addView(view)
 
             view.setOnClickListener {
-                selected[0] = !selected[0]
+                val location = IntArray(2)
+                view.getLocationOnScreen(location)
+                val x = location[0]
+                val y = location[1]
+
+                Log.d("My_tag","x=$x / y=$y")
+                darkChip.translationX= view.x+view.width/2-darkChip.width/2
+                darkChip.translationY= view.y+view.height/2-darkChip.height/2
+
             }
         }
     }
