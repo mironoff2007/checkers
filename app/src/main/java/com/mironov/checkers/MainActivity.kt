@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.core.view.marginLeft
 
 
@@ -41,11 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         flowLayout.removeAllViews()
 
-
-        val margin=flowLayout.marginLeft
-        val marginDp=dpToPixel(margin)
-
-        val tileSize=(screenWidth-2*marginDp)/ 8
+        val tileSize=(screenWidth-2*flowLayout.marginLeft)/ 8
         var j=0
         for (i in 0..63) {
             if(i%8==0){j++}

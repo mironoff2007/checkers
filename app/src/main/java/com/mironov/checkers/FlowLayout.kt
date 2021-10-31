@@ -46,7 +46,7 @@ class FlowLayout : ViewGroup {
                 lineHeightSpace =
                     max(lineHeightSpace, child.measuredHeight + lp.vertical_spacing)
 
-                if (i%numberViewsInLine==0) {
+                if (i%numberViewsInLine==0&&i!=0) {
                     xpos = paddingLeft
                     ypos += lineHeightSpace
                     nextLine=false
@@ -85,7 +85,7 @@ class FlowLayout : ViewGroup {
                 val childHeight = child.measuredHeight
                 val lp = child.layoutParams as LayoutParams
 
-                if (i%numberViewsInLine==0) {
+                if (i%numberViewsInLine==0&&i!=0) {
                     xpos = paddingLeft
                     ypos += lineHeightSpace
                     nextLine=false
