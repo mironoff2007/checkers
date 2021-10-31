@@ -1,5 +1,6 @@
 package com.mironov.checkers
 
+import android.annotation.SuppressLint
 import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,21 +10,25 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.FrameLayout
 import androidx.core.view.marginLeft
+import android.view.MotionEvent
+import android.view.View.OnTouchListener
 
 
 class MainActivity : AppCompatActivity() {
 
+    private  var tileSize=0
     private lateinit var flowLayout: FlowLayout
     private lateinit var frameLayout: FrameLayout
-    private lateinit var darkChip:View
+    private lateinit var darkChip: View
+    private var selectedChip: View? = null
 
-    private var screenWidth=0
+    private var tilesArray = arrayOf<Array<View>>()
+
+    private var screenWidth = 0
 
     private fun findViews() {
         flowLayout = findViewById(R.id.flowLayout)
         frameLayout = findViewById(R.id.board)
-        darkChip = this.layoutInflater.inflate(R.layout.chip, null)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,41 +40,80 @@ class MainActivity : AppCompatActivity() {
         screenWidth = displayMetrics.widthPixels
 
         findViews()
+        addLayouts()
+        addChips()
     }
 
     override fun onResume() {
         super.onResume()
-        addLayouts()
+
     }
 
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun addChips() {
+
+        for(i in 0..7){
+            val darkChip = this.layoutInflater.inflate(R.layout.chip, null)
+
+            frameLayout.addView(darkChip, 0, 0)
+
+            darkChip.layoutParams.height = tileSize
+            darkChip.layoutParams.width = tileSize
+
+            val view = tilesArray[i][0].findViewById<View>(R.id.tileImage) as ImageView
+
+            darkChip.translationX = view.x+view.width / 2 - darkChip.width / 2
+            darkChip.translationY = view.y+view.height / 2 - darkChip.height / 2
+
+            darkChip.setOnTouchListener { v, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        selectedChip = v
+                        v.alpha = 0.5f
+                    }
+                }
+                true
+            }
+
+        }
+
+    }
 
     private fun addLayouts() {
 
         flowLayout.removeAllViews()
-        frameLayout.addView(darkChip,0,0)
 
-        darkChip.layoutParams.height=80
-        darkChip.layoutParams.width=80
+        var j = 0
 
-        val tileSize=(screenWidth-2*flowLayout.marginLeft)/ 8
-        var j=0
+        var array = arrayOf<View>()
         for (i in 0..63) {
-            if(i%8==0){j++}
 
-            val selected = booleanArrayOf(false)
             val view: View = this.layoutInflater.inflate(R.layout.tile, null)
             val imageView = view.findViewById<View>(R.id.tileImage) as ImageView
 
-            view.tag=i
-            imageView.layoutParams.height=tileSize
-            imageView.layoutParams.width=tileSize
+            view.tag = i
+
+            tileSize = (screenWidth - 2 * flowLayout.marginLeft) / 8
+            imageView.layoutParams.height = tileSize
+            imageView.layoutParams.width = tileSize
 
             //Set spacing here
-            view.layoutParams=FlowLayout.LayoutParams(1,1)
+            view.layoutParams = FlowLayout.LayoutParams(1, 1)
+
+            if (i % 8 == 0&&i!=0) {
+                j++
+                tilesArray+=array
+                array = arrayOf<View>()
+                array +=view
+            }
+            else{
+                array +=view
+            }
 
             when {
-                (i+j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
-                (i+j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
+                (i + j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
+                (i + j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
             }
 
             flowLayout.addView(view)
@@ -84,15 +128,23 @@ class MainActivity : AppCompatActivity() {
                 val relativeTop: Int = offsetViewBounds.top
                 val relativeLeft: Int = offsetViewBounds.left
 
-                darkChip.translationX= relativeLeft.toFloat()+view.width/2-darkChip.width/2
-                darkChip.translationY= relativeTop.toFloat()+view.height/2-darkChip.height/2
+                if(selectedChip!=null) {
+                    selectedChip!!.translationX =
+                        relativeLeft.toFloat() + view.width / 2 - selectedChip!!.width / 2
+                    selectedChip!!.translationY =
+                        relativeTop.toFloat() + view.height / 2 - selectedChip!!.height / 2
 
-                Log.d("My_tag","Rect  x=$relativeLeft / y=$relativeTop")
-                Log.d("My_tag","tile Number="+view.tag)
+                    selectedChip!!.alpha = 1f
+                    selectedChip = null
+                    Log.d("My_tag", "Rect  x=$relativeLeft / y=$relativeTop")
+                }
+                Log.d("My_tag", "tile Number=" + view.tag)
             }
         }
+        tilesArray+=array
     }
-    fun dpToPixel( dpValue: Int): Int {
+
+    fun dpToPixel(dpValue: Int): Int {
         val scale: Float = resources.getDisplayMetrics().density
         return (dpValue * scale + 0.5f).toInt()
     }
