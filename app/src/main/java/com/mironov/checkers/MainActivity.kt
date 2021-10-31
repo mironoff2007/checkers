@@ -2,22 +2,21 @@ package com.mironov.checkers
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageView
 import android.util.DisplayMetrics
 import android.util.Log
-import android.widget.FrameLayout
-import androidx.core.view.marginLeft
 import android.view.MotionEvent
-import android.view.View.OnTouchListener
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.marginLeft
 
 
 class MainActivity : AppCompatActivity() {
 
-    private  var tileSize=0
+    private var tileSize = 0
     private lateinit var flowLayout: FlowLayout
     private lateinit var frameLayout: FrameLayout
     private lateinit var darkChip: View
@@ -52,39 +51,43 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     fun addChips() {
+        //init black chips
+        for (j in 0..2 step 1) {
+            var firstTile=0
+            if (j%2==0){firstTile=1}
+            for (i in firstTile..7 step 2) {
+                val darkChip = this.layoutInflater.inflate(R.layout.chip, null)
 
-        for(i in 0..7){
-            val darkChip = this.layoutInflater.inflate(R.layout.chip, null)
+                frameLayout.addView(darkChip, 0, 0)
 
-            frameLayout.addView(darkChip, 0, 0)
+                darkChip.layoutParams.height = tileSize
+                darkChip.layoutParams.width = tileSize
 
-            darkChip.layoutParams.height = tileSize
-            darkChip.layoutParams.width = tileSize
+                val view = tilesArray[j][i]
 
-            val view = tilesArray[0][i]
+                val offsetViewBounds = Rect()
+                //returns the visible bounds
+                view.getDrawingRect(offsetViewBounds)
+                // calculates the relative coordinates to the parent
+                frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
 
-            val offsetViewBounds = Rect()
-            //returns the visible bounds
-            view.getDrawingRect(offsetViewBounds)
-            // calculates the relative coordinates to the parent
-            frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
+                val relativeTop: Int = offsetViewBounds.top
+                val relativeLeft: Int = offsetViewBounds.left
 
-            val relativeTop: Int = offsetViewBounds.top
-            val relativeLeft: Int = offsetViewBounds.left
+                darkChip.translationX = relativeLeft.toFloat()
+                darkChip.translationY = relativeTop.toFloat()
 
-            darkChip.translationX = relativeLeft.toFloat()
-            darkChip.translationY = relativeTop.toFloat()
-
-            darkChip.setOnTouchListener { v, event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        selectedChip = v
-                        v.alpha = 0.5f
+                darkChip.setOnTouchListener { v, event ->
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            selectedChip = v
+                            v.alpha = 0.5f
+                        }
                     }
+                    true
                 }
-                true
-            }
 
+            }
         }
 
     }
@@ -111,19 +114,18 @@ class MainActivity : AppCompatActivity() {
             //Set spacing here
             view.layoutParams = FlowLayout.LayoutParams(1, 1)
 
-            if (i % 8 == 0&&i!=0) {
+            if (i % 8 == 0 && i != 0) {
                 j++
-                tilesArray+=array
+                tilesArray += array
                 array = arrayOf<View>()
-                array +=view
-            }
-            else{
-                array +=view
+                array += view
+            } else {
+                array += view
             }
 
             when {
-                (i + j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
-                (i + j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
+                (i + j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
+                (i + j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
             }
 
             flowLayout.addView(view)
@@ -138,7 +140,7 @@ class MainActivity : AppCompatActivity() {
                 val relativeTop: Int = offsetViewBounds.top
                 val relativeLeft: Int = offsetViewBounds.left
 
-                if(selectedChip!=null) {
+                if (selectedChip != null) {
                     selectedChip!!.translationX =
                         relativeLeft.toFloat() + view.width / 2 - selectedChip!!.width / 2
                     selectedChip!!.translationY =
@@ -151,7 +153,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("My_tag", "tile Number=" + view.tag)
             }
         }
-        tilesArray+=array
+        tilesArray += array
     }
 
     fun dpToPixel(dpValue: Int): Int {
