@@ -1,11 +1,10 @@
 package com.mironov.checkers
 
-import android.annotation.SuppressLint
+import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
 import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.FrameLayout
@@ -22,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun findViews() {
         flowLayout = findViewById(R.id.flowLayout)
-        frameLayout = findViewById(R.id.frame)
+        frameLayout = findViewById(R.id.board)
         darkChip = this.layoutInflater.inflate(R.layout.chip, null)
 
     }
@@ -61,6 +60,7 @@ class MainActivity : AppCompatActivity() {
             val view: View = this.layoutInflater.inflate(R.layout.tile, null)
             val imageView = view.findViewById<View>(R.id.tileImage) as ImageView
 
+            view.tag=i
             imageView.layoutParams.height=tileSize
             imageView.layoutParams.width=tileSize
 
@@ -75,15 +75,20 @@ class MainActivity : AppCompatActivity() {
             flowLayout.addView(view)
 
             view.setOnClickListener {
-                val location = IntArray(2)
-                view.getLocationOnScreen(location)
-                val x = location[0]
-                val y = location[1]
+                val offsetViewBounds = Rect()
+                //returns the visible bounds
+                view.getDrawingRect(offsetViewBounds)
+                // calculates the relative coordinates to the parent
+                frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
 
-                Log.d("My_tag","x=$x / y=$y")
-                darkChip.translationX= view.x+view.width/2-darkChip.width/2
-                darkChip.translationY= view.y+view.height/2-darkChip.height/2
+                val relativeTop: Int = offsetViewBounds.top
+                val relativeLeft: Int = offsetViewBounds.left
 
+                darkChip.translationX= relativeLeft.toFloat()+view.width/2-darkChip.width/2
+                darkChip.translationY= relativeTop.toFloat()+view.height/2-darkChip.height/2
+
+                Log.d("My_tag","Rect  x=$relativeLeft / y=$relativeTop")
+                Log.d("My_tag","tile Number="+view.tag)
             }
         }
     }
