@@ -65,17 +65,10 @@ class MainActivity : AppCompatActivity() {
 
                 val view = tilesArray[j][i]
 
-                val offsetViewBounds = Rect()
-                //returns the visible bounds
-                view.getDrawingRect(offsetViewBounds)
-                // calculates the relative coordinates to the parent
-                frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
+                val coordinates=getCoordinates(view)
 
-                val relativeTop: Int = offsetViewBounds.top
-                val relativeLeft: Int = offsetViewBounds.left
-
-                darkChip.translationX = relativeLeft.toFloat()
-                darkChip.translationY = relativeTop.toFloat()
+                darkChip.translationX = coordinates[0]
+                darkChip.translationY = coordinates[1]
 
                 darkChip.setOnTouchListener { v, event ->
                     when (event.action) {
@@ -131,24 +124,17 @@ class MainActivity : AppCompatActivity() {
             flowLayout.addView(view)
 
             view.setOnClickListener {
-                val offsetViewBounds = Rect()
-                //returns the visible bounds
-                view.getDrawingRect(offsetViewBounds)
-                // calculates the relative coordinates to the parent
-                frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
-
-                val relativeTop: Int = offsetViewBounds.top
-                val relativeLeft: Int = offsetViewBounds.left
+                val coordinates=getCoordinates(view)
 
                 if (selectedChip != null) {
                     selectedChip!!.translationX =
-                        relativeLeft.toFloat() + view.width / 2 - selectedChip!!.width / 2
+                        coordinates[0].toFloat() + view.width / 2 - selectedChip!!.width / 2
                     selectedChip!!.translationY =
-                        relativeTop.toFloat() + view.height / 2 - selectedChip!!.height / 2
+                        coordinates[1].toFloat() + view.height / 2 - selectedChip!!.height / 2
 
                     selectedChip!!.alpha = 1f
                     selectedChip = null
-                    Log.d("My_tag", "Rect  x=$relativeLeft / y=$relativeTop")
+
                 }
                 Log.d("My_tag", "tile Number=" + view.tag)
             }
@@ -159,5 +145,18 @@ class MainActivity : AppCompatActivity() {
     fun dpToPixel(dpValue: Int): Int {
         val scale: Float = resources.getDisplayMetrics().density
         return (dpValue * scale + 0.5f).toInt()
+    }
+
+    private fun getCoordinates(view:View):Array<Float> {
+        val offsetViewBounds = Rect()
+        //returns the visible bounds
+        view.getDrawingRect(offsetViewBounds)
+        // calculates the relative coordinates to the parent
+        frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
+
+        val relativeTop: Float = offsetViewBounds.top.toFloat()
+        val relativeLeft: Float = offsetViewBounds.left.toFloat()
+
+        return  arrayOf(relativeLeft,relativeTop)
     }
 }
