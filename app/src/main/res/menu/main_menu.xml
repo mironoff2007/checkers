@@ -4,7 +4,17 @@
 
     <item
         android:id="@+id/reset_game_action"
-        app:showAsAction="never"
-        android:title="@string/reset_game">
-    </item>
+        android:title="@string/reset_game"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/make_crown"
+        android:title="@string/make_crown"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/make_common"
+        android:title="@string/make_common"
+        app:showAsAction="never" />
+
 </menu>

@@ -55,6 +55,18 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
+            R.id.make_crown-> {
+                if(selectedChip!=null){
+                    selectedChip!!.findViewById<ImageView>(R.id.crown).setImageDrawable(resources.getDrawable(R.drawable.ic_crown))
+                }
+                true
+            }
+            R.id.make_common-> {
+                if(selectedChip!=null){
+                    selectedChip!!.findViewById<ImageView>(R.id.crown).setImageResource(0)
+                }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -194,20 +206,24 @@ class MainActivity : AppCompatActivity() {
         return arrayOf(relativeLeft, relativeTop)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     fun initChip(layout: Int, view: View) {
-        val darkChip = this.layoutInflater.inflate(layout, null)
+        val chip = this.layoutInflater.inflate(layout, null)
 
-        gameArea.addView(darkChip, 0, 0)
+        gameArea.addView(chip, tileSize, tileSize)
 
-        darkChip.layoutParams.height = tileSize
-        darkChip.layoutParams.width = tileSize
+
+        val imageView=chip.findViewById<ImageView>(R.id.chip)
+        imageView.layoutParams.height = tileSize
+        imageView.layoutParams.width = tileSize
+
 
         val coordinates = getCoordinates(view)
 
-        darkChip.translationX = coordinates[0]
-        darkChip.translationY = coordinates[1]
+        chip.translationX = coordinates[0]
+        chip.translationY = coordinates[1]
 
-        darkChip.setOnTouchListener { v, event ->
+        chip.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     val a = v.alpha
