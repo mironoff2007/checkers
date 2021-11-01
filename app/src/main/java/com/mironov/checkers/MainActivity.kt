@@ -15,10 +15,6 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
-import android.content.Intent
-
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -42,8 +38,8 @@ class MainActivity : AppCompatActivity() {
     private fun findViews() {
         gameBoard = findViewById(R.id.flowLayout)
         gameArea = findViewById(R.id.gameArea)
-        outBoardTop=findViewById(R.id. outBoardTop)
-        outBoardBot=findViewById(R.id. outBoardBot)
+        outBoardTop = findViewById(R.id.outBoardTop)
+        outBoardBot = findViewById(R.id.outBoardBot)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -77,10 +73,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        outBoardTop.setOnClickListener { if(selectedChip!=null){
-            selectedChip!!.visibility = View.GONE;chipIsSelected} }
-        outBoardBot.setOnClickListener { if(selectedChip!=null){
-            selectedChip!!.visibility = View.GONE;chipIsSelected=false} }
+        outBoardTop.setOnClickListener {
+            if (selectedChip != null) {
+                selectedChip!!.visibility = View.GONE;chipIsSelected= false
+            }
+        }
+        outBoardBot.setOnClickListener {
+            if (selectedChip != null) {
+                selectedChip!!.visibility = View.GONE;chipIsSelected = false
+            }
+        }
     }
 
     override fun onResume() {
@@ -97,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                 firstTile = 1
             }
             for (i in firstTile..7 step 2) {
-                initChip(R.layout.dark_chip,tilesArray[j][i])
+                initChip(R.layout.dark_chip, tilesArray[j][i])
             }
         }
 
@@ -108,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                 firstTile = 1
             }
             for (i in firstTile..7 step 2) {
-                initChip(R.layout.light_chip,tilesArray[j][i])
+                initChip(R.layout.light_chip, tilesArray[j][i])
             }
         }
 
@@ -192,7 +194,7 @@ class MainActivity : AppCompatActivity() {
         return arrayOf(relativeLeft, relativeTop)
     }
 
-    fun initChip(layout:Int,view:View){
+    fun initChip(layout: Int, view: View) {
         val darkChip = this.layoutInflater.inflate(layout, null)
 
         gameArea.addView(darkChip, 0, 0)
