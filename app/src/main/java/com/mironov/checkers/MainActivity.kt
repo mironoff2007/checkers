@@ -15,10 +15,12 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
+import androidx.lifecycle.ViewModelProvider
 
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var gameLogic: GameLogic
     private var tileSize = 0
     private lateinit var gameBoard: FlowLayout
     private lateinit var gameArea: FrameLayout
@@ -75,6 +77,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        gameLogic = ViewModelProvider(this).get(GameLogic::class.java)
+        
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenWidth = displayMetrics.widthPixels
@@ -83,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         addLayouts()
         initListeners()
     }
+
 
     private fun initListeners() {
         outBoardTop.setOnClickListener {
@@ -112,6 +117,7 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.dark_chip, tilesArray[j][i])
+                gameLogic.chipsPositionArray[j][i]=HasChip.DARK
             }
         }
 
@@ -123,9 +129,9 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.light_chip, tilesArray[j][i])
+                gameLogic.chipsPositionArray[j][i]=HasChip.LIGHT
             }
         }
-
     }
 
     private fun addLayouts() {
@@ -136,12 +142,12 @@ class MainActivity : AppCompatActivity() {
         var j = 0
 
         var array = arrayOf<View>()
-        for (i in 0..63) {
+        var i=-1
+        for (tileId in 0..63) {
 
             val view: View = this.layoutInflater.inflate(R.layout.tile, null)
             val imageView = view.findViewById<View>(R.id.tileImage) as ImageView
 
-            view.tag = i
 
             tileSize = (screenWidth - 2 * gameBoard.marginLeft) / 8
             imageView.layoutParams.height = tileSize
@@ -150,18 +156,21 @@ class MainActivity : AppCompatActivity() {
             //Set spacing here
             view.layoutParams = FlowLayout.LayoutParams(1, 1)
 
-            if (i % 8 == 0 && i != 0) {
+            i++
+            view.tag = "$i,$j,$tileId"
+            if (tileId % 8 == 0 && tileId != 0) {
                 j++
                 tilesArray += array
                 array = arrayOf<View>()
                 array += view
+                i=0
             } else {
                 array += view
             }
 
             when {
-                (i + j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
-                (i + j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
+                (tileId + j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
+                (tileId + j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
             }
 
             gameBoard.addView(view)
@@ -169,6 +178,7 @@ class MainActivity : AppCompatActivity() {
             view.setOnClickListener {
                 val coordinates = getCoordinates(view)
 
+                val ijn=view.tag.toString().split(',')
 
                 //Move Chip to tile
                 if (selectedChip != null) {
@@ -180,7 +190,6 @@ class MainActivity : AppCompatActivity() {
                     selectedChip!!.alpha = 1f
                     selectedChip = null
                     chipIsSelected = false
-
                 }
                 Log.d("My_tag", "tile Number=" + view.tag)
             }
@@ -210,8 +219,10 @@ class MainActivity : AppCompatActivity() {
     fun initChip(layout: Int, view: View) {
         val chip = this.layoutInflater.inflate(layout, null)
 
-        gameArea.addView(chip, tileSize, tileSize)
+        if(layout==R.layout.light_chip){ chip.tag=HasChip.LIGHT}
+        else{ chip.tag=HasChip.DARK}
 
+        gameArea.addView(chip, tileSize, tileSize)
 
         val imageView=chip.findViewById<ImageView>(R.id.chip)
         imageView.layoutParams.height = tileSize
