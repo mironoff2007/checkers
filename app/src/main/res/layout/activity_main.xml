@@ -3,24 +3,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:orientation="vertical">
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/gray"
+        android:id="@+id/outBoardTop"
+        android:orientation="vertical" />
     <FrameLayout
-        android:id="@+id/board"
+        android:id="@+id/gameArea"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/black"
         android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp">
+        android:layout_marginRight="0dp"
+        android:background="@color/black">
 
         <com.mironov.checkers.FlowLayout
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
             android:id="@+id/flowLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:background="@color/black" />
     </FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/gray"
+        android:id="@+id/outBoardBot"
+        android:orientation="vertical" />
+
 
 
 </LinearLayout>

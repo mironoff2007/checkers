@@ -9,6 +9,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
@@ -17,8 +18,12 @@ import androidx.core.view.marginLeft
 class MainActivity : AppCompatActivity() {
 
     private var tileSize = 0
-    private lateinit var flowLayout: FlowLayout
-    private lateinit var frameLayout: FrameLayout
+    private lateinit var gameBoard: FlowLayout
+    private lateinit var gameArea: FrameLayout
+
+    private lateinit var outBoardTop: LinearLayout
+    private lateinit var outBoardBot: LinearLayout
+
     private lateinit var darkChip: View
     private var selectedChip: View? = null
 
@@ -29,8 +34,10 @@ class MainActivity : AppCompatActivity() {
     private var screenWidth = 0
 
     private fun findViews() {
-        flowLayout = findViewById(R.id.flowLayout)
-        frameLayout = findViewById(R.id.board)
+        gameBoard = findViewById(R.id.flowLayout)
+        gameArea = findViewById(R.id.gameArea)
+        outBoardTop=findViewById(R.id. outBoardTop)
+        outBoardBot=findViewById(R.id. outBoardBot)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,11 +50,18 @@ class MainActivity : AppCompatActivity() {
 
         findViews()
         addLayouts()
+        initListeners()
+    }
+
+    private fun initListeners() {
+        outBoardTop.setOnClickListener { if(selectedChip!=null){
+            selectedChip!!.visibility = View.GONE;chipIsSelected} }
+        outBoardBot.setOnClickListener { if(selectedChip!=null){
+            selectedChip!!.visibility = View.GONE;chipIsSelected=false} }
     }
 
     override fun onResume() {
         super.onResume()
-
     }
 
 
@@ -79,8 +93,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun addLayouts() {
 
-        flowLayout.removeAllViews()
-        frameLayout.doOnPreDraw { addChips() }
+        gameBoard.removeAllViews()
+        gameArea.doOnPreDraw { addChips() }
 
         var j = 0
 
@@ -92,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
             view.tag = i
 
-            tileSize = (screenWidth - 2 * flowLayout.marginLeft) / 8
+            tileSize = (screenWidth - 2 * gameBoard.marginLeft) / 8
             imageView.layoutParams.height = tileSize
             imageView.layoutParams.width = tileSize
 
@@ -113,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                 (i + j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
             }
 
-            flowLayout.addView(view)
+            gameBoard.addView(view)
 
             view.setOnClickListener {
                 val coordinates = getCoordinates(view)
@@ -147,7 +161,7 @@ class MainActivity : AppCompatActivity() {
         //returns the visible bounds
         view.getDrawingRect(offsetViewBounds)
         // calculates the relative coordinates to the parent
-        frameLayout.offsetDescendantRectToMyCoords(view, offsetViewBounds)
+        gameArea.offsetDescendantRectToMyCoords(view, offsetViewBounds)
 
         val relativeTop: Float = offsetViewBounds.top.toFloat()
         val relativeLeft: Float = offsetViewBounds.left.toFloat()
@@ -158,7 +172,7 @@ class MainActivity : AppCompatActivity() {
     fun initChip(layout:Int,view:View){
         val darkChip = this.layoutInflater.inflate(layout, null)
 
-        frameLayout.addView(darkChip, 0, 0)
+        gameArea.addView(darkChip, 0, 0)
 
         darkChip.layoutParams.height = tileSize
         darkChip.layoutParams.width = tileSize
