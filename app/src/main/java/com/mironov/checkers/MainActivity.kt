@@ -5,6 +5,8 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
@@ -13,6 +15,10 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
+import android.content.Intent
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +44,23 @@ class MainActivity : AppCompatActivity() {
         gameArea = findViewById(R.id.gameArea)
         outBoardTop=findViewById(R.id. outBoardTop)
         outBoardBot=findViewById(R.id. outBoardBot)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.reset_game_action -> {
+                val intent = intent
+                finish()
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
