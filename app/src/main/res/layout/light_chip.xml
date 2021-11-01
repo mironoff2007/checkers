@@ -4,6 +4,6 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_gravity="top"
-    android:id="@+id/chip"
-    android:src="@drawable/ic_dark_chip">
+    android:id="@+id/light_chip"
+    android:src="@drawable/ic_light_chip">
 </ImageView>

@@ -60,43 +60,18 @@ class MainActivity : AppCompatActivity() {
                 firstTile = 1
             }
             for (i in firstTile..7 step 2) {
-                val darkChip = this.layoutInflater.inflate(R.layout.chip, null)
+                initChip(R.layout.dark_chip,tilesArray[j][i])
+            }
+        }
 
-                frameLayout.addView(darkChip, 0, 0)
-
-                darkChip.layoutParams.height = tileSize
-                darkChip.layoutParams.width = tileSize
-
-                val view = tilesArray[j][i]
-
-                val coordinates = getCoordinates(view)
-
-                darkChip.translationX = coordinates[0]
-                darkChip.translationY = coordinates[1]
-
-                darkChip.setOnTouchListener { v, event ->
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            val a = v.alpha
-
-                            if (a < 1) {
-                                //put chip
-                                selectedChip = null
-                                v.alpha = 1f
-                                chipIsSelected = false
-                            } else {
-                                //pick chip
-                                if (!chipIsSelected) {
-                                    v.alpha = 0.5f
-                                    chipIsSelected = true
-                                    selectedChip = v
-                                }
-                            }
-                        }
-                    }
-                    true
-                }
-
+        //init light chips
+        for (j in 5..7 step 1) {
+            var firstTile = 0
+            if (j % 2 == 0) {
+                firstTile = 1
+            }
+            for (i in firstTile..7 step 2) {
+                initChip(R.layout.light_chip,tilesArray[j][i])
             }
         }
 
@@ -178,5 +153,42 @@ class MainActivity : AppCompatActivity() {
         val relativeLeft: Float = offsetViewBounds.left.toFloat()
 
         return arrayOf(relativeLeft, relativeTop)
+    }
+
+    fun initChip(layout:Int,view:View){
+        val darkChip = this.layoutInflater.inflate(layout, null)
+
+        frameLayout.addView(darkChip, 0, 0)
+
+        darkChip.layoutParams.height = tileSize
+        darkChip.layoutParams.width = tileSize
+
+        val coordinates = getCoordinates(view)
+
+        darkChip.translationX = coordinates[0]
+        darkChip.translationY = coordinates[1]
+
+        darkChip.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val a = v.alpha
+
+                    if (a < 1) {
+                        //put chip
+                        selectedChip = null
+                        v.alpha = 1f
+                        chipIsSelected = false
+                    } else {
+                        //pick chip
+                        if (!chipIsSelected) {
+                            v.alpha = 0.5f
+                            chipIsSelected = true
+                            selectedChip = v
+                        }
+                    }
+                }
+            }
+            true
+        }
     }
 }
