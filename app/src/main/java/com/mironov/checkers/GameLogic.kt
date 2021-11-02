@@ -13,13 +13,20 @@ class GameLogic : ViewModel() {
 
 
     private var chipsPositionArray = arrayOf<Array<HasChip>>()
+    private var allowedMoves = arrayOf<Array<Boolean>>()
 
     init {
         var array = arrayOf<HasChip>()
+        var arrayMoves = arrayOf<Boolean>()
         for(j in 0..7){
-            for(i in 0..7){ array+=HasChip.EMPTY }
+            for(i in 0..7){
+                array+=HasChip.EMPTY
+                arrayMoves+=false
+            }
             chipsPositionArray+=array
+            allowedMoves+=arrayMoves
             array=arrayOf<HasChip>()
+            arrayMoves=arrayOf<Boolean>()
         }
     }
 
@@ -39,5 +46,35 @@ class GameLogic : ViewModel() {
 
     fun setShipAtPos(i:Int,j:Int,chipColor:HasChip){
         chipsPositionArray[j][i]=chipColor
+    }
+
+    fun calculateAllowedMoves(whichChipTurn:HasChip){
+        //direction of chip move
+        var directionInc =0
+        directionInc = if(whichChipTurn==HasChip.LIGHT) -1  else  1
+    //Find chips for move
+        for(j in 0..7){
+            for(i in 0..7){
+                if(chipsPositionArray[j][i]==whichChipTurn){
+                //Check possible moves if tile is empty
+                    if(j+directionInc>0){
+                        //Check left
+                        if(i-1>0){
+                            if( chipsPositionArray[j+directionInc][i-1]==HasChip.EMPTY){
+                               allowedMoves[j+directionInc][i-1]=true
+                            }
+                        }
+                        //Check right
+                        if(i+1<7){
+                            if( chipsPositionArray[j+directionInc][i+1]==HasChip.EMPTY){
+                                allowedMoves[j+directionInc][i+1]=true
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
     }
 }
