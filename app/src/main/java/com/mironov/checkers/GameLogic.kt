@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 class GameLogic : ViewModel() {
 
     fun doTheThing() {
-        TODO("Not yet implemented")
+       val i=0
     }
 
 

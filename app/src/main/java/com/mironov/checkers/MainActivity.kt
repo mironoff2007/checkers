@@ -99,6 +99,7 @@ class MainActivity : AppCompatActivity() {
             if (selectedChip != null) {
                 selectedChip!!.visibility = View.GONE;chipIsSelected = false
             }
+            gameLogic.doTheThing()
         }
     }
 
@@ -118,6 +119,7 @@ class MainActivity : AppCompatActivity() {
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.dark_chip, tilesArray[j][i])
                 gameLogic.chipsPositionArray[j][i]=HasChip.DARK
+                selectedChip!!.tag="$i,$j,"+HasChip.DARK
             }
         }
 
@@ -130,6 +132,7 @@ class MainActivity : AppCompatActivity() {
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.light_chip, tilesArray[j][i])
                 gameLogic.chipsPositionArray[j][i]=HasChip.LIGHT
+                selectedChip!!.tag="$i,$j,"+HasChip.LIGHT
             }
         }
     }
@@ -178,15 +181,33 @@ class MainActivity : AppCompatActivity() {
             view.setOnClickListener {
                 val coordinates = getCoordinates(view)
 
-                val ijn=view.tag.toString().split(',')
+
 
                 //Move Chip to tile
                 if (selectedChip != null) {
-                    selectedChip!!.translationX =
-                        coordinates[0].toFloat() + view.width / 2 - selectedChip!!.width / 2
-                    selectedChip!!.translationY =
-                        coordinates[1].toFloat() + view.height / 2 - selectedChip!!.height / 2
 
+                    //Get chip position index and Color
+                    val chipData= selectedChip!!.tag.toString().split(',')
+                    val i1=chipData[0].toInt()
+                    val j1=chipData[1].toInt()
+                    val chipColor=chipData[2]
+
+                    //Get tile index position
+                    val tileIndexes=view.tag.toString().split(',')
+                    val i2=tileIndexes[0].toInt()
+                    val j2=tileIndexes[1].toInt()
+
+                    //Remove chip from old position
+                    gameLogic.chipsPositionArray[j1][i1]=HasChip.EMPTY
+                    //Put chip to new position
+                    gameLogic.chipsPositionArray[j2][i2]=HasChip.valueOf(chipColor)
+                    //Move chip on UI
+                    selectedChip!!.translationX =
+                        coordinates[0] + view.width / 2 - selectedChip!!.width / 2
+                    selectedChip!!.translationY =
+                        coordinates[1] + view.height / 2 - selectedChip!!.height / 2
+
+                    //Deselect chip
                     selectedChip!!.alpha = 1f
                     selectedChip = null
                     chipIsSelected = false
@@ -197,10 +218,6 @@ class MainActivity : AppCompatActivity() {
         tilesArray += array
     }
 
-    fun dpToPixel(dpValue: Int): Int {
-        val scale: Float = resources.getDisplayMetrics().density
-        return (dpValue * scale + 0.5f).toInt()
-    }
 
     private fun getCoordinates(view: View): Array<Float> {
         val offsetViewBounds = Rect()
@@ -216,11 +233,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun initChip(layout: Int, view: View) {
+    fun initChip(layout: Int, tile: View) {
         val chip = this.layoutInflater.inflate(layout, null)
-
-        if(layout==R.layout.light_chip){ chip.tag=HasChip.LIGHT}
-        else{ chip.tag=HasChip.DARK}
 
         gameArea.addView(chip, tileSize, tileSize)
 
@@ -228,12 +242,12 @@ class MainActivity : AppCompatActivity() {
         imageView.layoutParams.height = tileSize
         imageView.layoutParams.width = tileSize
 
-
-        val coordinates = getCoordinates(view)
-
+        //Init chip at position of tile
+        val coordinates = getCoordinates(tile)
         chip.translationX = coordinates[0]
         chip.translationY = coordinates[1]
 
+        selectedChip=chip
         chip.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
