@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
                     val j2=tileIndexes[1].toInt()
 
                     //Check if move to tile is allowed
-                    if(gameLogic.moveIsAllowed(i2,j2,chipColor)) {
+                    if(gameLogic.moveIsAllowed(i1,j1,i2,j2,chipColor)) {
                         //Move chip on UI
                         selectedChip!!.translationX =
                             coordinates[0] + tile.width / 2 - selectedChip!!.width / 2
