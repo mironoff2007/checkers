@@ -104,11 +104,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
-
     @SuppressLint("ClickableViewAccessibility")
     fun addChips() {
         //init black chips
@@ -119,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.dark_chip, tilesArray[j][i])
-                gameLogic.chipsPositionArray[j][i]=HasChip.DARK
+                gameLogic.setShipAtPos(i,j,HasChip.DARK)
                 selectedChip!!.tag="$i,$j,"+HasChip.DARK
             }
         }
@@ -132,58 +127,63 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.light_chip, tilesArray[j][i])
-                gameLogic.chipsPositionArray[j][i]=HasChip.LIGHT
+                gameLogic.setShipAtPos(i,j,HasChip.LIGHT)
                 selectedChip!!.tag="$i,$j,"+HasChip.LIGHT
             }
         }
     }
 
     private fun addLayouts() {
-
         gameBoard.removeAllViews()
+
+        //Draw chips after board draw
         gameArea.doOnPreDraw { addChips() }
 
-        var j = 0
 
-        var array = arrayOf<View>()
+        //Line and column indexes
         var i=-1
+        var j = 0
+        var array = arrayOf<View>()
+        //Init tiles
         for (tileId in 0..63) {
 
-            val view: View = this.layoutInflater.inflate(R.layout.tile, null)
-            val imageView = view.findViewById<View>(R.id.tileImage) as ImageView
+            val tile: View = this.layoutInflater.inflate(R.layout.tile, null)
+            val tileImage = tile.findViewById<View>(R.id.tileImage) as ImageView
 
-
+            //Calculate tile size
             tileSize = (screenWidth - 2 * gameBoard.marginLeft) / 8
-            imageView.layoutParams.height = tileSize
-            imageView.layoutParams.width = tileSize
+            tileImage.layoutParams.height = tileSize
+            tileImage.layoutParams.width = tileSize
 
             //Set spacing here
-            view.layoutParams = FlowLayout.LayoutParams(1, 1)
+            tile.layoutParams = FlowLayout.LayoutParams(1, 1)
 
-
-
+            //Calc indexes, move to next line
             i++
             if (tileId % 8 == 0 && tileId != 0) {
                 j++
                 tilesArray += array
                 array = arrayOf<View>()
-                array += view
+                array += tile
                 i=0
             } else {
-                array += view
+                array += tile
             }
 
-            view.tag = "$i,$j,$tileId"
+            //Add tag to tile
+            tile.tag = "$i,$j,$tileId"
 
+            //Color tile
             when {
-                (tileId + j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
-                (tileId + j) % 2 == 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
+                (tileId + j) % 2 != 0 -> tileImage.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
+                (tileId + j) % 2 == 0 -> tileImage.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_light))
             }
 
-            gameBoard.addView(view)
+            gameBoard.addView(tile)
 
-            view.setOnClickListener {
-                val coordinates = getCoordinates(view)
+            tile.setOnClickListener {
+                //Get tile coordinates
+                val coordinates = getCoordinates(tile)
 
                 //Move Chip to tile
                 if (selectedChip != null) {
@@ -195,21 +195,20 @@ class MainActivity : AppCompatActivity() {
                     val chipColor=HasChip.valueOf(chipData[2])
 
                     //Get tile index position
-                    val tileIndexes=view.tag.toString().split(',')
+                    val tileIndexes=tile.tag.toString().split(',')
                     val i2=tileIndexes[0].toInt()
                     val j2=tileIndexes[1].toInt()
 
-
+                    //Check if move to tile is allowed
                     if(gameLogic.moveIsAllowed(i2,j2,chipColor)) {
-                        //Remove chip from old position
-                        gameLogic.chipsPositionArray[j1][i1] = HasChip.EMPTY
-                        //Put chip to new position
-                        gameLogic.chipsPositionArray[j2][i2] = chipColor
                         //Move chip on UI
                         selectedChip!!.translationX =
-                            coordinates[0] + view.width / 2 - selectedChip!!.width / 2
+                            coordinates[0] + tile.width / 2 - selectedChip!!.width / 2
                         selectedChip!!.translationY =
-                            coordinates[1] + view.height / 2 - selectedChip!!.height / 2
+                            coordinates[1] + tile.height / 2 - selectedChip!!.height / 2
+
+                        //Update logic
+                        gameLogic.updatePosition(i1,j1,i2,j2,chipColor)
 
                         //Update chip pos tag
                         selectedChip!!.tag="$i2,$j2,$chipColor"
@@ -223,9 +222,10 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this,"Нельзя так ходить",Toast.LENGTH_LONG)
                     }
                 }
-                Log.d("My_tag", "tile Number=" + view.tag)
+                Log.d("My_tag", "tile Number=" + tile.tag)
             }
         }
+        //Add tiles line to array of tiles
         tilesArray += array
     }
 
@@ -249,9 +249,10 @@ class MainActivity : AppCompatActivity() {
 
         gameArea.addView(chip, tileSize, tileSize)
 
-        val imageView=chip.findViewById<ImageView>(R.id.chip)
-        imageView.layoutParams.height = tileSize
-        imageView.layoutParams.width = tileSize
+        //Set size of chip
+        val chipImage=chip.findViewById<ImageView>(R.id.chip)
+        chipImage.layoutParams.height = tileSize
+        chipImage.layoutParams.width = tileSize
 
         //Init chip at position of tile
         val coordinates = getCoordinates(tile)
@@ -259,6 +260,7 @@ class MainActivity : AppCompatActivity() {
         chip.translationY = coordinates[1]
 
         selectedChip=chip
+
         chip.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
