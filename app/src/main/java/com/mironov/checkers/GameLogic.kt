@@ -22,4 +22,11 @@ class GameLogic : ViewModel() {
             array=arrayOf<HasChip>()
         }
     }
+
+    fun moveIsAllowed(i:Int,j:Int,chipColor:HasChip):Boolean{
+        if (chipsPositionArray[j][i]==HasChip.EMPTY){
+            return true
+        }
+        return false
+    }
 }

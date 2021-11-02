@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
@@ -159,8 +160,9 @@ class MainActivity : AppCompatActivity() {
             //Set spacing here
             view.layoutParams = FlowLayout.LayoutParams(1, 1)
 
+
+
             i++
-            view.tag = "$i,$j,$tileId"
             if (tileId % 8 == 0 && tileId != 0) {
                 j++
                 tilesArray += array
@@ -170,6 +172,8 @@ class MainActivity : AppCompatActivity() {
             } else {
                 array += view
             }
+
+            view.tag = "$i,$j,$tileId"
 
             when {
                 (tileId + j) % 2 != 0 -> imageView.setImageDrawable(resources.getDrawable(R.drawable.ic_cell_dark))
@@ -181,8 +185,6 @@ class MainActivity : AppCompatActivity() {
             view.setOnClickListener {
                 val coordinates = getCoordinates(view)
 
-
-
                 //Move Chip to tile
                 if (selectedChip != null) {
 
@@ -190,27 +192,36 @@ class MainActivity : AppCompatActivity() {
                     val chipData= selectedChip!!.tag.toString().split(',')
                     val i1=chipData[0].toInt()
                     val j1=chipData[1].toInt()
-                    val chipColor=chipData[2]
+                    val chipColor=HasChip.valueOf(chipData[2])
 
                     //Get tile index position
                     val tileIndexes=view.tag.toString().split(',')
                     val i2=tileIndexes[0].toInt()
                     val j2=tileIndexes[1].toInt()
 
-                    //Remove chip from old position
-                    gameLogic.chipsPositionArray[j1][i1]=HasChip.EMPTY
-                    //Put chip to new position
-                    gameLogic.chipsPositionArray[j2][i2]=HasChip.valueOf(chipColor)
-                    //Move chip on UI
-                    selectedChip!!.translationX =
-                        coordinates[0] + view.width / 2 - selectedChip!!.width / 2
-                    selectedChip!!.translationY =
-                        coordinates[1] + view.height / 2 - selectedChip!!.height / 2
 
-                    //Deselect chip
-                    selectedChip!!.alpha = 1f
-                    selectedChip = null
-                    chipIsSelected = false
+                    if(gameLogic.moveIsAllowed(i2,j2,chipColor)) {
+                        //Remove chip from old position
+                        gameLogic.chipsPositionArray[j1][i1] = HasChip.EMPTY
+                        //Put chip to new position
+                        gameLogic.chipsPositionArray[j2][i2] = chipColor
+                        //Move chip on UI
+                        selectedChip!!.translationX =
+                            coordinates[0] + view.width / 2 - selectedChip!!.width / 2
+                        selectedChip!!.translationY =
+                            coordinates[1] + view.height / 2 - selectedChip!!.height / 2
+
+                        //Update chip pos tag
+                        selectedChip!!.tag="$i2,$j2,$chipColor"
+
+                        //Deselect chip
+                        selectedChip!!.alpha = 1f
+                        selectedChip = null
+                        chipIsSelected = false
+                    }
+                    else{
+                        Toast.makeText(this,"Нельзя так ходить",Toast.LENGTH_LONG)
+                    }
                 }
                 Log.d("My_tag", "tile Number=" + view.tag)
             }
