@@ -5,9 +5,7 @@ import androidx.lifecycle.ViewModel
 
 class GameLogic : ViewModel() {
 
-    fun doTheThing() {
-        val i = 0
-    }
+    var witchTurn: HasChip = HasChip.LIGHT
 
     private var chipsPositionArray = arrayOf<Array<HasChip>>()
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
@@ -52,6 +50,12 @@ class GameLogic : ViewModel() {
         chipsPositionArray[j1][i1] = HasChip.EMPTY
         //Put chip to new position
         chipsPositionArray[j2][i2] = chipColor
+        //Change who moves
+        if (witchTurn == HasChip.LIGHT) {
+            witchTurn = HasChip.DARK
+        } else {
+            witchTurn = HasChip.LIGHT
+        }
     }
 
     fun setShipAtPos(i: Int, j: Int, chipColor: HasChip) {

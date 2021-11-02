@@ -58,14 +58,15 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
-            R.id.make_crown-> {
-                if(selectedChip!=null){
-                    selectedChip!!.findViewById<ImageView>(R.id.crown).setImageDrawable(resources.getDrawable(R.drawable.ic_crown))
+            R.id.make_crown -> {
+                if (selectedChip != null) {
+                    selectedChip!!.findViewById<ImageView>(R.id.crown)
+                        .setImageDrawable(resources.getDrawable(R.drawable.ic_crown))
                 }
                 true
             }
-            R.id.make_common-> {
-                if(selectedChip!=null){
+            R.id.make_common -> {
+                if (selectedChip != null) {
                     selectedChip!!.findViewById<ImageView>(R.id.crown).setImageResource(0)
                 }
                 true
@@ -79,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         gameLogic = ViewModelProvider(this).get(GameLogic::class.java)
-        
+
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         screenWidth = displayMetrics.widthPixels
@@ -93,14 +94,13 @@ class MainActivity : AppCompatActivity() {
     private fun initListeners() {
         outBoardTop.setOnClickListener {
             if (selectedChip != null) {
-                selectedChip!!.visibility = View.GONE;chipIsSelected= false
+                selectedChip!!.visibility = View.GONE;chipIsSelected = false
             }
         }
         outBoardBot.setOnClickListener {
             if (selectedChip != null) {
                 selectedChip!!.visibility = View.GONE;chipIsSelected = false
             }
-            gameLogic.doTheThing()
         }
     }
 
@@ -114,8 +114,8 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.dark_chip, tilesArray[j][i])
-                gameLogic.setShipAtPos(i,j,HasChip.DARK)
-                selectedChip!!.tag="$i,$j,"+HasChip.DARK
+                gameLogic.setShipAtPos(i, j, HasChip.DARK)
+                selectedChip!!.tag = "$i,$j," + HasChip.DARK
             }
         }
 
@@ -127,8 +127,8 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.light_chip, tilesArray[j][i])
-                gameLogic.setShipAtPos(i,j,HasChip.LIGHT)
-                selectedChip!!.tag="$i,$j,"+HasChip.LIGHT
+                gameLogic.setShipAtPos(i, j, HasChip.LIGHT)
+                selectedChip!!.tag = "$i,$j," + HasChip.LIGHT
             }
         }
     }
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
 
 
         //Line and column indexes
-        var i=-1
+        var i = -1
         var j = 0
         var array = arrayOf<View>()
         //Init tiles
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                 tilesArray += array
                 array = arrayOf<View>()
                 array += tile
-                i=0
+                i = 0
             } else {
                 array += tile
             }
@@ -190,18 +190,18 @@ class MainActivity : AppCompatActivity() {
                 if (selectedChip != null) {
 
                     //Get chip position index and Color
-                    val chipData= selectedChip!!.tag.toString().split(',')
-                    val i1=chipData[0].toInt()
-                    val j1=chipData[1].toInt()
-                    val chipColor=HasChip.valueOf(chipData[2])
+                    val chipData = selectedChip!!.tag.toString().split(',')
+                    val i1 = chipData[0].toInt()
+                    val j1 = chipData[1].toInt()
+                    val chipColor = HasChip.valueOf(chipData[2])
 
                     //Get tile index position
-                    val tileIndexes=tile.tag.toString().split(',')
-                    val i2=tileIndexes[0].toInt()
-                    val j2=tileIndexes[1].toInt()
+                    val tileIndexes = tile.tag.toString().split(',')
+                    val i2 = tileIndexes[0].toInt()
+                    val j2 = tileIndexes[1].toInt()
 
                     //Check if move to tile is allowed
-                    if(gameLogic.moveIsAllowed(i1,j1,i2,j2,chipColor)) {
+                    if (gameLogic.moveIsAllowed(i1, j1, i2, j2, chipColor)) {
                         //Move chip on UI
                         selectedChip!!.translationX =
                             coordinates[0] + tile.width / 2 - selectedChip!!.width / 2
@@ -209,18 +209,18 @@ class MainActivity : AppCompatActivity() {
                             coordinates[1] + tile.height / 2 - selectedChip!!.height / 2
 
                         //Update logic
-                        gameLogic.updatePosition(i1,j1,i2,j2,chipColor)
+                        gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
 
                         //Update chip pos tag
-                        selectedChip!!.tag="$i2,$j2,$chipColor"
+                        selectedChip!!.tag = "$i2,$j2,$chipColor"
 
                         //Deselect chip
                         selectedChip!!.alpha = 1f
                         selectedChip = null
                         chipIsSelected = false
-                    }
-                    else{
-                        Toast.makeText(this,"Нельзя так ходить",Toast.LENGTH_LONG)
+                        clearAllowedTiles()
+                    } else {
+                        Toast.makeText(this, "Нельзя так ходить", Toast.LENGTH_LONG)
                     }
                 }
                 Log.d("My_tag", "tile Number=" + tile.tag)
@@ -251,7 +251,7 @@ class MainActivity : AppCompatActivity() {
         gameArea.addView(chip, tileSize, tileSize)
 
         //Set size of chip
-        val chipImage=chip.findViewById<ImageView>(R.id.chip)
+        val chipImage = chip.findViewById<ImageView>(R.id.chip)
         chipImage.layoutParams.height = tileSize
         chipImage.layoutParams.width = tileSize
 
@@ -260,7 +260,7 @@ class MainActivity : AppCompatActivity() {
         chip.translationX = coordinates[0]
         chip.translationY = coordinates[1]
 
-        selectedChip=chip
+        selectedChip = chip
 
 
         //On chip pick
@@ -279,31 +279,46 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         //pick chip
                         if (!chipIsSelected) {
-                            v.alpha = 0.5f
-                            chipIsSelected = true
+
                             selectedChip = v
-                            //Check possible moves
                             //Get chip position index and Color
-                            val chipData= selectedChip!!.tag.toString().split(',')
-                            val i=chipData[0].toInt()
-                            val j=chipData[1].toInt()
-                            val chipColor=HasChip.valueOf(chipData[2])
-                            val allowedMoves=gameLogic.getAllowedMoves(i,j,chipColor)
+                            val chipData = selectedChip!!.tag.toString().split(',')
+                            val i = chipData[0].toInt()
+                            val j = chipData[1].toInt()
+                            val chipColor = HasChip.valueOf(chipData[2])
 
-                            //Clear tiles
-                            clearAllowedTiles()
+                            //Check with color is turn
+                            if (gameLogic.witchTurn == chipColor) {
+                                //pick chip
+                                v.alpha = 0.5f
+                                chipIsSelected = true
 
-                            //Draw allowed moves
-                            for (j in 0..7) {
-                                for (i in 0..7) {
-                                    //Update Tiles
-                                    val tileAllowedImage = tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
-                                    if(allowedMoves[j][i]){
-                                        tileAllowedImage.setImageDrawable(resources.getDrawable(R.drawable.ic_allowed_move))
+                                //Check possible moves
+                                val allowedMoves = gameLogic.getAllowedMoves(i, j, chipColor)
+
+                                //Clear tiles
+                                clearAllowedTiles()
+
+                                //Draw allowed moves
+                                for (j in 0..7) {
+                                    for (i in 0..7) {
+                                        //Update Tiles
+                                        val tileAllowedImage =
+                                            tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
+                                        if (allowedMoves[j][i]) {
+                                            tileAllowedImage.setImageDrawable(
+                                                resources.getDrawable(
+                                                    R.drawable.ic_allowed_move
+                                                )
+                                            )
+                                        }
                                     }
                                 }
                             }
-
+                            else{
+                                //unpick
+                                selectedChip = null
+                            }
                         }
                     }
                 }
@@ -312,11 +327,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun clearAllowedTiles(){
+    private fun clearAllowedTiles() {
         for (j in 0..7) {
             for (i in 0..7) {
                 //Update Tiles
-                val tileAllowedImage = tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
+                val tileAllowedImage =
+                    tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
                 tileAllowedImage.setImageResource(0)
             }
         }
