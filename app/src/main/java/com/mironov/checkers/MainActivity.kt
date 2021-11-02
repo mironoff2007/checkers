@@ -181,6 +181,7 @@ class MainActivity : AppCompatActivity() {
 
             gameBoard.addView(tile)
 
+            //On chip put to some tile
             tile.setOnClickListener {
                 //Get tile coordinates
                 val coordinates = getCoordinates(tile)
@@ -261,6 +262,8 @@ class MainActivity : AppCompatActivity() {
 
         selectedChip=chip
 
+
+        //On chip pick
         chip.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -271,17 +274,51 @@ class MainActivity : AppCompatActivity() {
                         selectedChip = null
                         v.alpha = 1f
                         chipIsSelected = false
+                        //Clear tiles
+                        clearAllowedTiles()
                     } else {
                         //pick chip
                         if (!chipIsSelected) {
                             v.alpha = 0.5f
                             chipIsSelected = true
                             selectedChip = v
+                            //Check possible moves
+                            //Get chip position index and Color
+                            val chipData= selectedChip!!.tag.toString().split(',')
+                            val i=chipData[0].toInt()
+                            val j=chipData[1].toInt()
+                            val chipColor=HasChip.valueOf(chipData[2])
+                            val allowedMoves=gameLogic.getAllowedMoves(i,j,chipColor)
+
+                            //Clear tiles
+                            clearAllowedTiles()
+
+                            //Draw allowed moves
+                            for (j in 0..7) {
+                                for (i in 0..7) {
+                                    //Update Tiles
+                                    val tileAllowedImage = tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
+                                    if(allowedMoves[j][i]){
+                                        tileAllowedImage.setImageDrawable(resources.getDrawable(R.drawable.ic_allowed_move))
+                                    }
+                                }
+                            }
+
                         }
                     }
                 }
             }
             true
+        }
+    }
+
+    fun clearAllowedTiles(){
+        for (j in 0..7) {
+            for (i in 0..7) {
+                //Update Tiles
+                val tileAllowedImage = tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
+                tileAllowedImage.setImageResource(0)
+            }
         }
     }
 }

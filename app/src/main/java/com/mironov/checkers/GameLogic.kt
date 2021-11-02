@@ -9,11 +9,9 @@ class GameLogic : ViewModel() {
         val i = 0
     }
 
-
     private var chipsPositionArray = arrayOf<Array<HasChip>>()
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
     private var allowedMovesCurrent = arrayOf<Array<Boolean>>()
-
 
     init {
         var array = arrayOf<HasChip>()
@@ -60,6 +58,21 @@ class GameLogic : ViewModel() {
         chipsPositionArray[j][i] = chipColor
     }
 
+    //Get allowed directions for Current chip
+    /**
+     * @param i picked tile index i
+     * @param j picked tile index j
+     * @param whichChipTurn white or black turn
+     */
+    fun getAllowedMoves(
+        i: Int,
+        j: Int,
+        whichChipTurn: HasChip
+    ): Array<Array<Boolean>> {
+        calculateAllowedMoves(i, j, whichChipTurn, allowedMovesCurrent)
+        return allowedMovesCurrent
+    }
+
     //Calculate allowed directions for Current chip
     /**
      * @param i picked tile index i
@@ -76,7 +89,7 @@ class GameLogic : ViewModel() {
         //reset allowed moves
         for (j in 0..7) {
             for (i in 0..7) {
-                allowedMoves[j][i]=false
+                allowedMoves[j][i] = false
             }
         }
         //direction of chip move
