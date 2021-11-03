@@ -135,7 +135,6 @@ class GameLogic : ViewModel() {
      * @param i chip index i
      * @param dirJInc direction to increment j (+is down)
      * @param dirIInc direction to increment i (+is left)
-     * @param whichChipTurn white or black turn
      * @param allowedMoves Matrix of allowed moves to update
      */
     private fun checkDirection(
@@ -154,7 +153,7 @@ class GameLogic : ViewModel() {
             else if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
                 //check eat
                     val oppositeChip = if(whichTurn==HasChip.LIGHT){HasChip.DARK}else{HasChip.LIGHT}
-                if (checkPosition(j + 2 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
+                if (checkPosition(j + 1 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
                     if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
                         allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
                     }
