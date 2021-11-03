@@ -52,15 +52,16 @@ class GameLogic : ViewModel() {
         chipsPositionArray[j2][i2] = chipColor
 
 
-        //find chip to eat
-        /*
-        for (n in i1 until i2){
-            val j=n-i1
-            if(chipsPositionArray[j][n]!=HasChip.EMPTY&&chipsPositionArray[j][n]!=whichTurn){
-                chipsPositionArray[j][n]=HasChip.EMPTY
+        //Find chip to eat
+        //Direction to move by j Index
+        val inc=if(j2-j1>0){1}else{-1}
+        for (i in i1 until i2){
+            val j=j1+inc
+            if(chipsPositionArray[j][i]!=HasChip.EMPTY&&chipsPositionArray[j][i]!=whichTurn){
+                chipsPositionArray[j][i]=HasChip.EMPTY
             }
         }
-        */
+
 
         //Change who moves`
         if (whichTurn == HasChip.LIGHT) {
