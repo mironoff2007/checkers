@@ -50,7 +50,7 @@ class GameLogic : ViewModel() {
         chipsPositionArray[j1][i1] = HasChip.EMPTY
         //Put chip to new position
         chipsPositionArray[j2][i2] = chipColor
-        //Change who moves
+        //Change who moves`
         if (witchTurn == HasChip.LIGHT) {
             witchTurn = HasChip.DARK
         } else {
@@ -99,17 +99,56 @@ class GameLogic : ViewModel() {
         //direction of chip move
         var directionInc = 0
         directionInc = if (whichChipTurn == HasChip.LIGHT) -1 else 1
-        if (j + directionInc > 0) {
+        if (checkBoardBonds(j + directionInc, i)) {
             //Check left
-            if (i - 1 >= 0) {
-                if (chipsPositionArray[j + directionInc][i - 1] == HasChip.EMPTY) {
-                    allowedMoves[j + directionInc][i - 1] = true
-                }
-            }
+            checkDirection(j, i, directionInc, 1, whichChipTurn, allowedMoves)
             //Check right
-            if (i + 1 <= 7) {
-                if (chipsPositionArray[j + directionInc][i + 1] == HasChip.EMPTY) {
-                    allowedMoves[j + directionInc][i + 1] = true
+            checkDirection(j, i, directionInc, -1, whichChipTurn, allowedMoves)
+        }
+    }
+
+
+    private fun checkBoardBonds(i: Int, j: Int): Boolean {
+        if (i in 0..7 && j in 0..7) {
+            return true
+        }
+        return false
+    }
+
+    private fun checkPosition(j: Int, i: Int, type: HasChip): Boolean {
+        if (chipsPositionArray[j][i] == type) {
+            return true
+        }
+        return false
+    }
+
+    /**
+     * * @param j chip index j
+     * @param i chip index i
+     * @param dirJInc direction to increment j (+is down)
+     * @param dirIInc direction to increment i (+is left)
+     * @param whichChipTurn white or black turn
+     * @param allowedMoves Matrix of allowed moves to update
+     */
+    private fun checkDirection(
+        j: Int,
+        i: Int,
+        dirJInc: Int,
+        dirIInc: Int,
+        whichChipTurn: HasChip,
+        allowedMoves: Array<Array<Boolean>>
+    ) {
+        if (checkBoardBonds(j + dirJInc, i + dirIInc)) {
+            if (checkPosition(j + dirJInc, i + dirIInc, HasChip.EMPTY)) {
+                allowedMoves[j + dirJInc][i + dirIInc] = true
+            }
+            //If next chip color is different
+            else if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
+                //check eat
+                if (!checkPosition(j + 2 * dirJInc, i + 1 * dirIInc, whichChipTurn)) {
+                    if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
+                        allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
+                    }
                 }
             }
         }
