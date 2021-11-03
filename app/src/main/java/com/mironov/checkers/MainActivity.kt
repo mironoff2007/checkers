@@ -29,12 +29,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var outBoardTop: LinearLayout
     private lateinit var outBoardBot: LinearLayout
 
-    private lateinit var darkChip: View
     private var selectedChip: View? = null
 
     private var chipIsSelected = false
 
     private var tilesArray = arrayOf<Array<View>>()
+    private var chipsArray = arrayOf<Array<View?>>()
 
     private var screenWidth = 0
 
@@ -106,6 +106,11 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     fun addChips() {
+        for (n in 0..7) {
+            val array = arrayOfNulls<View?>(8)
+            chipsArray += array
+        }
+
         //init black chips
         for (j in 0..2 step 1) {
             var firstTile = 0
@@ -116,6 +121,7 @@ class MainActivity : AppCompatActivity() {
                 initChip(R.layout.dark_chip, tilesArray[j][i])
                 gameLogic.setChipAtPos(i, j, HasChip.DARK)
                 selectedChip!!.tag = "$i,$j," + HasChip.DARK
+                chipsArray[j][i] = selectedChip
             }
         }
 
@@ -129,6 +135,7 @@ class MainActivity : AppCompatActivity() {
                 initChip(R.layout.light_chip, tilesArray[j][i])
                 gameLogic.setChipAtPos(i, j, HasChip.LIGHT)
                 selectedChip!!.tag = "$i,$j," + HasChip.LIGHT
+                chipsArray[j][i] = selectedChip
             }
         }
     }
@@ -138,7 +145,6 @@ class MainActivity : AppCompatActivity() {
 
         //Draw chips after board draw
         gameArea.doOnPreDraw { addChips() }
-
 
         //Line and column indexes
         var i = -1
@@ -203,26 +209,54 @@ class MainActivity : AppCompatActivity() {
                     //Check if move to tile is allowed
                     if (gameLogic.moveIsAllowed(i1, j1, i2, j2)) {
                         //Move chip on UI
-                        selectedChip!!.translationX =
-                            coordinates[0] + tile.width / 2 - selectedChip!!.width / 2
-                        selectedChip!!.translationY =
-                            coordinates[1] + tile.height / 2 - selectedChip!!.height / 2
-
+                        /*
+                    selectedChip!!.translationX =
+                        coordinates[0] + tile.width / 2 - selectedChip!!.width / 2
+                    selectedChip!!.translationY =
+                        coordinates[1] + tile.height / 2 - selectedChip!!.height / 2
+                      */
                         //Update logic
                         gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
-
-                        //Draw all moves
-                        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
 
                         //Update chip pos tag
                         selectedChip!!.tag = "$i2,$j2,$chipColor"
 
-                        //Deselect chip
-                        selectedChip!!.alpha = 1f
+                        //Remove and chip
+                        gameArea.removeView(selectedChip)
                         selectedChip = null
                         chipIsSelected = false
-                    }
-                    else {
+
+                        //UI clear chips
+                        for (j in 0..7) {
+                            for (i in 0..7) {
+                                val chip=chipsArray[j][i]
+                                gameArea.removeView(chip)
+                                chip?.setOnTouchListener(null)
+                                chipsArray[j][i] = null
+                            }
+                        }
+
+                        //Update chips on UI
+                        for (j in 0..7) {
+                            for (i in 0..7) {
+                                val chipColor = gameLogic.chipsPositionArray[j][i]
+                                if (chipColor == HasChip.DARK) {
+                                    initChip(R.layout.dark_chip, tilesArray[j][i])
+                                    selectedChip!!.tag = "$i,$j," + chipColor
+                                    chipsArray[j][i] = selectedChip
+                                } else if (chipColor == HasChip.LIGHT) {
+                                    initChip(R.layout.light_chip, tilesArray[j][i])
+                                    selectedChip!!.tag = "$i,$j," + chipColor
+                                    chipsArray[j][i] = selectedChip
+                                }
+
+                            }
+                        }
+
+                        //Draw all moves
+                        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+
+                    } else {
                         Toast.makeText(this, "Нельзя так ходить", Toast.LENGTH_LONG)
                     }
                 }
@@ -265,7 +299,6 @@ class MainActivity : AppCompatActivity() {
 
         selectedChip = chip
 
-
         //On chip pick
         chip.setOnTouchListener { v, event ->
             when (event.action) {
@@ -297,8 +330,7 @@ class MainActivity : AppCompatActivity() {
 
                                 //Get and Draw allowed moves
                                 drawPossibleMoves(gameLogic.getAllowedMoves(i, j))
-                            }
-                            else{
+                            } else {
                                 //unpick
                                 selectedChip = null
                             }
@@ -322,7 +354,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawPossibleMoves(allowedMoves:Array<Array<Boolean>>){
+    private fun drawPossibleMoves(allowedMoves: Array<Array<Boolean>>) {
         clearAllowedTiles()
         for (j in 0..7) {
             for (i in 0..7) {

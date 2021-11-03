@@ -7,7 +7,7 @@ class GameLogic : ViewModel() {
 
     var whichTurn: HasChip = HasChip.LIGHT
 
-    private var chipsPositionArray = arrayOf<Array<HasChip>>()
+     var chipsPositionArray = arrayOf<Array<HasChip>>()
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
     private var allowedMovesCurrent = arrayOf<Array<Boolean>>()
 
@@ -50,6 +50,18 @@ class GameLogic : ViewModel() {
         chipsPositionArray[j1][i1] = HasChip.EMPTY
         //Put chip to new position
         chipsPositionArray[j2][i2] = chipColor
+
+
+        //find chip to eat
+        /*
+        for (n in i1 until i2){
+            val j=n-i1
+            if(chipsPositionArray[j][n]!=HasChip.EMPTY&&chipsPositionArray[j][n]!=whichTurn){
+                chipsPositionArray[j][n]=HasChip.EMPTY
+            }
+        }
+        */
+
         //Change who moves`
         if (whichTurn == HasChip.LIGHT) {
             whichTurn = HasChip.DARK
@@ -134,13 +146,15 @@ class GameLogic : ViewModel() {
         allowedMoves: Array<Array<Boolean>>
     ) {
         if (checkBoardBonds(j + dirJInc, i + dirIInc)) {
+            //if empty
             if (checkPosition(j + dirJInc, i + dirIInc, HasChip.EMPTY)) {
                 allowedMoves[j + dirJInc][i + dirIInc] = true
             }
             //If next chip color is different
             else if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
                 //check eat
-                if (!checkPosition(j + 2 * dirJInc, i + 1 * dirIInc, whichTurn)) {
+                    val oppositeChip = if(whichTurn==HasChip.LIGHT){HasChip.DARK}else{HasChip.LIGHT}
+                if (checkPosition(j + 2 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
                     if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
                         allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
                     }
