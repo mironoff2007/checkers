@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 
 class GameLogic : ViewModel() {
 
-    var witchTurn: HasChip = HasChip.LIGHT
+    var whichTurn: HasChip = HasChip.LIGHT
 
     private var chipsPositionArray = arrayOf<Array<HasChip>>()
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
@@ -37,8 +37,8 @@ class GameLogic : ViewModel() {
      * @param i2 index i of tile to put chip
      * @param j2 index j of tile to put chip
      */
-    fun moveIsAllowed(i1: Int, j1: Int, i2: Int, j2: Int, chipColor: HasChip): Boolean {
-        calculateAllowedMoves(i1, j1, chipColor, allowedMovesCurrent)
+    fun moveIsAllowed(i1: Int, j1: Int, i2: Int, j2: Int): Boolean {
+        calculateAllowedMoves(i1, j1, allowedMovesCurrent)
         if (chipsPositionArray[j2][i2] == HasChip.EMPTY) {
             return allowedMovesCurrent[j2][i2]
         }
@@ -51,14 +51,14 @@ class GameLogic : ViewModel() {
         //Put chip to new position
         chipsPositionArray[j2][i2] = chipColor
         //Change who moves`
-        if (witchTurn == HasChip.LIGHT) {
-            witchTurn = HasChip.DARK
+        if (whichTurn == HasChip.LIGHT) {
+            whichTurn = HasChip.DARK
         } else {
-            witchTurn = HasChip.LIGHT
+            whichTurn = HasChip.LIGHT
         }
     }
 
-    fun setShipAtPos(i: Int, j: Int, chipColor: HasChip) {
+    fun setChipAtPos(i: Int, j: Int, chipColor: HasChip) {
         chipsPositionArray[j][i] = chipColor
     }
 
@@ -66,14 +66,18 @@ class GameLogic : ViewModel() {
     /**
      * @param i picked tile index i
      * @param j picked tile index j
-     * @param whichChipTurn white or black turn
      */
     fun getAllowedMoves(
         i: Int,
-        j: Int,
-        whichChipTurn: HasChip
+        j: Int
     ): Array<Array<Boolean>> {
-        calculateAllowedMoves(i, j, whichChipTurn, allowedMovesCurrent)
+        //reset allowed moves
+        for (j in 0..7) {
+            for (i in 0..7) {
+                allowedMovesCurrent[j][i] = false
+            }
+        }
+        calculateAllowedMoves(i, j, allowedMovesCurrent)
         return allowedMovesCurrent
     }
 
@@ -81,29 +85,21 @@ class GameLogic : ViewModel() {
     /**
      * @param i picked tile index i
      * @param j picked tile index j
-     * @param whichChipTurn white or black turn
      * @param allowedMoves Matrix of allowed moves to update
      */
     private fun calculateAllowedMoves(
         i: Int,
         j: Int,
-        whichChipTurn: HasChip,
         allowedMoves: Array<Array<Boolean>>
     ) {
-        //reset allowed moves
-        for (j in 0..7) {
-            for (i in 0..7) {
-                allowedMoves[j][i] = false
-            }
-        }
         //direction of chip move
         var directionInc = 0
-        directionInc = if (whichChipTurn == HasChip.LIGHT) -1 else 1
+        directionInc = if (whichTurn == HasChip.LIGHT) -1 else 1
         if (checkBoardBonds(j + directionInc, i)) {
             //Check left
-            checkDirection(j, i, directionInc, 1, whichChipTurn, allowedMoves)
+            checkDirection(j, i, directionInc,  1, allowedMoves)
             //Check right
-            checkDirection(j, i, directionInc, -1, whichChipTurn, allowedMoves)
+            checkDirection(j, i, directionInc, -1, allowedMoves)
         }
     }
 
@@ -135,7 +131,6 @@ class GameLogic : ViewModel() {
         i: Int,
         dirJInc: Int,
         dirIInc: Int,
-        whichChipTurn: HasChip,
         allowedMoves: Array<Array<Boolean>>
     ) {
         if (checkBoardBonds(j + dirJInc, i + dirIInc)) {
@@ -145,7 +140,7 @@ class GameLogic : ViewModel() {
             //If next chip color is different
             else if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
                 //check eat
-                if (!checkPosition(j + 2 * dirJInc, i + 1 * dirIInc, whichChipTurn)) {
+                if (!checkPosition(j + 2 * dirJInc, i + 1 * dirIInc, whichTurn)) {
                     if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
                         allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
                     }
@@ -155,15 +150,22 @@ class GameLogic : ViewModel() {
     }
 
     //Calculate All possible moves
-    fun calculateAllowedMovesForAll(whichChipTurn: HasChip) {
+    fun calculateAllowedMovesForAll():Array<Array<Boolean>>  {
+        //reset allowed moves
+        for (j in 0..7) {
+            for (i in 0..7) {
+                allowedMovesAll[j][i] = false
+            }
+        }
         //Find chips for move
         for (j in 0..7) {
             for (i in 0..7) {
-                if (chipsPositionArray[j][i] == whichChipTurn) {
+                if (chipsPositionArray[j][i] == whichTurn) {
                     //Check possible moves if tile is empty
-                    calculateAllowedMoves(i, j, whichChipTurn, allowedMovesAll)
+                    calculateAllowedMoves(i, j, allowedMovesAll)
                 }
             }
         }
+        return allowedMovesAll
     }
 }

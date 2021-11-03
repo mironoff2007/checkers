@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.dark_chip, tilesArray[j][i])
-                gameLogic.setShipAtPos(i, j, HasChip.DARK)
+                gameLogic.setChipAtPos(i, j, HasChip.DARK)
                 selectedChip!!.tag = "$i,$j," + HasChip.DARK
             }
         }
@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
             }
             for (i in firstTile..7 step 2) {
                 initChip(R.layout.light_chip, tilesArray[j][i])
-                gameLogic.setShipAtPos(i, j, HasChip.LIGHT)
+                gameLogic.setChipAtPos(i, j, HasChip.LIGHT)
                 selectedChip!!.tag = "$i,$j," + HasChip.LIGHT
             }
         }
@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity() {
                     val j2 = tileIndexes[1].toInt()
 
                     //Check if move to tile is allowed
-                    if (gameLogic.moveIsAllowed(i1, j1, i2, j2, chipColor)) {
+                    if (gameLogic.moveIsAllowed(i1, j1, i2, j2)) {
                         //Move chip on UI
                         selectedChip!!.translationX =
                             coordinates[0] + tile.width / 2 - selectedChip!!.width / 2
@@ -211,6 +211,9 @@ class MainActivity : AppCompatActivity() {
                         //Update logic
                         gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
 
+                        //Draw all moves
+                        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+
                         //Update chip pos tag
                         selectedChip!!.tag = "$i2,$j2,$chipColor"
 
@@ -218,8 +221,8 @@ class MainActivity : AppCompatActivity() {
                         selectedChip!!.alpha = 1f
                         selectedChip = null
                         chipIsSelected = false
-                        clearAllowedTiles()
-                    } else {
+                    }
+                    else {
                         Toast.makeText(this, "Нельзя так ходить", Toast.LENGTH_LONG)
                     }
                 }
@@ -274,12 +277,11 @@ class MainActivity : AppCompatActivity() {
                         selectedChip = null
                         v.alpha = 1f
                         chipIsSelected = false
-                        //Clear tiles
-                        clearAllowedTiles()
+                        //Draw all moves
+                        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
                     } else {
                         //pick chip
                         if (!chipIsSelected) {
-
                             selectedChip = v
                             //Get chip position index and Color
                             val chipData = selectedChip!!.tag.toString().split(',')
@@ -288,32 +290,13 @@ class MainActivity : AppCompatActivity() {
                             val chipColor = HasChip.valueOf(chipData[2])
 
                             //Check with color is turn
-                            if (gameLogic.witchTurn == chipColor) {
+                            if (gameLogic.whichTurn == chipColor) {
                                 //pick chip
                                 v.alpha = 0.5f
                                 chipIsSelected = true
 
-                                //Check possible moves
-                                val allowedMoves = gameLogic.getAllowedMoves(i, j, chipColor)
-
-                                //Clear tiles
-                                clearAllowedTiles()
-
-                                //Draw allowed moves
-                                for (j in 0..7) {
-                                    for (i in 0..7) {
-                                        //Update Tiles
-                                        val tileAllowedImage =
-                                            tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
-                                        if (allowedMoves[j][i]) {
-                                            tileAllowedImage.setImageDrawable(
-                                                resources.getDrawable(
-                                                    R.drawable.ic_allowed_move
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
+                                //Get and Draw allowed moves
+                                drawPossibleMoves(gameLogic.getAllowedMoves(i, j))
                             }
                             else{
                                 //unpick
@@ -325,6 +308,7 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
     }
 
     private fun clearAllowedTiles() {
@@ -334,6 +318,24 @@ class MainActivity : AppCompatActivity() {
                 val tileAllowedImage =
                     tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
                 tileAllowedImage.setImageResource(0)
+            }
+        }
+    }
+
+    private fun drawPossibleMoves(allowedMoves:Array<Array<Boolean>>){
+        clearAllowedTiles()
+        for (j in 0..7) {
+            for (i in 0..7) {
+                //Update Tiles
+                val tileAllowedImage =
+                    tilesArray[j][i].findViewById<View>(R.id.tileIsAllowed) as ImageView
+                if (allowedMoves[j][i]) {
+                    tileAllowedImage.setImageDrawable(
+                        resources.getDrawable(
+                            R.drawable.ic_allowed_move
+                        )
+                    )
+                }
             }
         }
     }
