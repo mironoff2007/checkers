@@ -1,10 +1,6 @@
 package com.mironov.checkers
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
 
 
 class GameLogic : ViewModel() {
@@ -16,6 +12,10 @@ class GameLogic : ViewModel() {
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
     @Volatile
     private var allowedMovesCurrent = arrayOf<Array<Boolean>>()
+
+    var isAnyChipEaten=false
+    var canEat=false
+    var multipleEat=false
 
     init {
         var array = arrayOf<HasChip>()
@@ -44,6 +44,7 @@ class GameLogic : ViewModel() {
      * @param j2 index j of tile to put chip
      */
     fun moveIsAllowed(i1: Int, j1: Int, i2: Int, j2: Int): Boolean {
+        multipleEat=false
         calculateAllowedMoves(j1, i1, allowedMovesCurrent)
         if (chipsPositionArray[j2][i2] == HasChip.EMPTY) {
             return allowedMovesCurrent[j2][i2]
@@ -69,6 +70,7 @@ class GameLogic : ViewModel() {
         for (i in i1 until i2) {
             if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
                 chipsPositionArray[j][i] = HasChip.EMPTY
+                isAnyChipEaten=true
             }
             j = j + inc
         }
@@ -76,6 +78,7 @@ class GameLogic : ViewModel() {
         for (i in i2 until i1) {
             if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
                 chipsPositionArray[j][i] = HasChip.EMPTY
+                isAnyChipEaten=true
             }
             j = j + inc
         }
@@ -84,7 +87,7 @@ class GameLogic : ViewModel() {
         //Check if any chip is eaten
         if(isAnyChipEaten){
             //Find next "eat" step
-            if(! checkEatAllDir(j2,i2,Direction.NONE,allowedMovesCurrent)){
+            if(!checkEatAllDir(j2,i2,Direction.NONE,allowedMovesCurrent)){
                 changeTurn()
                 isAnyChipEaten=false
             }
@@ -96,6 +99,7 @@ class GameLogic : ViewModel() {
         }
     }
 
+    fun changeTurn(){
         //Change who moves`
         if (whichTurn == HasChip.LIGHT) {
             whichTurn = HasChip.DARK
@@ -118,6 +122,7 @@ class GameLogic : ViewModel() {
         j: Int
     ): Array<Array<Boolean>> {
         //reset allowed moves
+        multipleEat=false
         for (j in 0..7) {
             for (i in 0..7) {
                 allowedMovesCurrent[j][i] = false
@@ -158,11 +163,13 @@ class GameLogic : ViewModel() {
         i: Int,
         ignoreDirection:Direction,
         allowedMoves: Array<Array<Boolean>>
-    ) {
+    ) :Boolean{
+        canEat=false
         if(ignoreDirection!=Direction.DR){checkEat(j, i,  1,  1, Direction.UL, allowedMoves)}
         if(ignoreDirection!=Direction.UL){checkEat(j, i, -1, -1, Direction.DR,allowedMoves)}
         if(ignoreDirection!=Direction.UR){checkEat(j, i, -1,  1, Direction.DL,allowedMoves)}
         if(ignoreDirection!=Direction.DL){checkEat(j, i,  1, -1, Direction.UR,allowedMoves)}
+        return canEat
 
     }
 
@@ -209,7 +216,7 @@ class GameLogic : ViewModel() {
         dirIInc: Int,
         direction:Direction,
         allowedMoves: Array<Array<Boolean>>
-    ): Boolean {
+    ) {
         //If next chip color is different
         if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
             //check eat
@@ -221,16 +228,18 @@ class GameLogic : ViewModel() {
             if (checkPosition(j + 1 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
                 if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
                     allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
-                            checkEatAllDir(j + 2 * dirJInc, i + 2 * dirIInc,direction, allowedMoves)
-                    return true
+                    if(multipleEat) {
+                        checkEatAllDir(j + 2 * dirJInc, i + 2 * dirIInc, direction, allowedMoves)
+                    }
+                    canEat = true
                 }
             }
         }
-        return false
     }
 
     //Calculate All possible moves
     fun calculateAllowedMovesForAll(): Array<Array<Boolean>> {
+        multipleEat=true
         //reset allowed moves
         for (j in 0..7) {
             for (i in 0..7) {
