@@ -60,18 +60,33 @@ class GameLogic : ViewModel() {
             -1
         }
         for (i in i1 until i2) {
-            val j = j1 + inc
             if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
                 chipsPositionArray[j][i] = HasChip.EMPTY
             }
+            j = j + inc
         }
         for (i in i2 until i1) {
-            val j = j1 + inc
             if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
                 chipsPositionArray[j][i] = HasChip.EMPTY
             }
+            j = j + inc
         }
 
+
+        //Check if any chip is eaten
+        if(isAnyChipEaten){
+            //Find next "eat" step
+            if(! checkEatAllDir(j2,i2,Direction.NONE,allowedMovesCurrent)){
+                changeTurn()
+                isAnyChipEaten=false
+            }
+        }
+        else{
+            //change turn if not eaten
+            changeTurn()
+            isAnyChipEaten=false
+        }
+    }
 
         //Change who moves`
         if (whichTurn == HasChip.LIGHT) {
@@ -111,8 +126,8 @@ class GameLogic : ViewModel() {
      * @param allowedMoves Matrix of allowed moves to update
      */
     private fun calculateAllowedMoves(
-        i: Int,
         j: Int,
+        i: Int,
         allowedMoves: Array<Array<Boolean>>
     ) {
         //direction of chip move
@@ -134,7 +149,7 @@ class GameLogic : ViewModel() {
     }
 
 
-    private fun checkBoardBonds(i: Int, j: Int): Boolean {
+    private fun checkBoardBonds(j: Int, i: Int): Boolean {
         if (i in 0..7 && j in 0..7) {
             return true
         }
@@ -207,7 +222,7 @@ class GameLogic : ViewModel() {
             for (i in 0..7) {
                 if (chipsPositionArray[j][i] == whichTurn) {
                     //Check possible moves if tile is empty
-                    calculateAllowedMoves(i, j, allowedMovesAll)
+                    calculateAllowedMoves(j, i, allowedMovesAll)
                 }
             }
         }
