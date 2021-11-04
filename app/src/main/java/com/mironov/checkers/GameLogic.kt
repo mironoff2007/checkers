@@ -58,7 +58,7 @@ class GameLogic : ViewModel() {
      * @param i2 index i of tile to put chip
      * @param j2 index j of tile to put chip
      */
-    fun updatePosition(i1: Int, j1: Int, i2: Int, j2: Int, chipColor: HasChip) {
+    fun updatePosition(i1: Int, j1: Int, i2: Int, j2: Int, chipColor: HasChip):Boolean {
         //Remove chip from old position
         chipsPositionArray[j1][i1] = HasChip.EMPTY
         //Put chip to new position
@@ -94,11 +94,14 @@ class GameLogic : ViewModel() {
             if (!checkEatAllDir(j2, i2, Direction.NONE, allowedMovesCurrent)) {
                 changeTurn()
                 isAnyChipEaten = false
+                return false
             }
+            else {return true}
         } else {
             //change turn if not eaten
             changeTurn()
             isAnyChipEaten = false
+            return false
         }
     }
 

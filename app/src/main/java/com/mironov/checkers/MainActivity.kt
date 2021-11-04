@@ -17,6 +17,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
 import androidx.lifecycle.ViewModelProvider
+import android.os.SystemClock
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +41,8 @@ class MainActivity : AppCompatActivity() {
     private var chipsArray = arrayOf<Array<View?>>()
 
     private var screenWidth = 0
+
+    private  var multipleEat=false
 
     private fun findViews() {
         gameBoard = findViewById(R.id.flowLayout)
@@ -87,21 +93,6 @@ class MainActivity : AppCompatActivity() {
 
         findViews()
         addLayouts()
-        initListeners()
-    }
-
-
-    private fun initListeners() {
-        outBoardTop.setOnClickListener {
-            if (selectedChip != null) {
-                selectedChip!!.visibility = View.GONE;chipIsSelected = false
-            }
-        }
-        outBoardBot.setOnClickListener {
-            if (selectedChip != null) {
-                selectedChip!!.visibility = View.GONE;chipIsSelected = false
-            }
-        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -210,28 +201,15 @@ class MainActivity : AppCompatActivity() {
 
                     //Check if move to tile is allowed
                     if (gameLogic.moveIsAllowed(i1, j1, i2, j2)) {
-                        //Move chip on UI
-                        /*
-                    selectedChip!!.translationX =
-                        coordinates[0] + tile.width / 2 - selectedChip!!.width / 2
-                    selectedChip!!.translationY =
-                        coordinates[1] + tile.height / 2 - selectedChip!!.height / 2
-                      */
+
                         //Update logic
-                        gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
-
-                        //Update chip pos tag
-                        selectedChip!!.tag = "$i2,$j2,$chipColor"
-
-                        //Remove and chip
-                        gameArea.removeView(selectedChip)
-                        selectedChip = null
-                        chipIsSelected = false
+                        multipleEat=gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
+                        chipIsSelected=false
 
                         //UI clear chips
                         for (j in 0..7) {
                             for (i in 0..7) {
-                                val chip=chipsArray[j][i]
+                                val chip = chipsArray[j][i]
                                 gameArea.removeView(chip)
                                 chip?.setOnTouchListener(null)
                                 chipsArray[j][i] = null
@@ -251,12 +229,15 @@ class MainActivity : AppCompatActivity() {
                                     selectedChip!!.tag = "$i,$j," + chipColor
                                     chipsArray[j][i] = selectedChip
                                 }
-
                             }
                         }
 
                         //Draw all moves
                         drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+
+                        if(multipleEat){
+                            touchView(chipsArray[j2][i2]!!)
+                        }
 
                     } else {
                         Toast.makeText(this, "Нельзя так ходить", Toast.LENGTH_LONG)
@@ -268,7 +249,6 @@ class MainActivity : AppCompatActivity() {
         //Add tiles line to array of tiles
         tilesArray += array
     }
-
 
     private fun getCoordinates(view: View): Array<Float> {
         val offsetViewBounds = Rect()
@@ -307,7 +287,7 @@ class MainActivity : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     val a = v.alpha
 
-                    if (a < 1) {
+                    if (a < 1&&!multipleEat) {
                         //put chip
                         selectedChip = null
                         v.alpha = 1f
@@ -344,6 +324,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun touchView(view: View) {
+        view.dispatchTouchEvent(
+            MotionEvent.obtain(
+                SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis(),
+                MotionEvent.ACTION_DOWN ,
+                0F,
+                0F,
+                0
+            )
+        )
+        view.dispatchTouchEvent(
+            MotionEvent.obtain(
+                SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis(),
+                MotionEvent.ACTION_UP ,
+                0F,
+                0F,
+                0
+            )
+        )
+    }
     private fun clearAllowedTiles() {
         for (j in 0..7) {
             for (i in 0..7) {
