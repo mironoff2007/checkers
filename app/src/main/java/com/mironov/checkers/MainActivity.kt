@@ -138,6 +138,8 @@ class MainActivity : AppCompatActivity() {
                 chipsArray[j][i] = selectedChip
             }
         }
+
+        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
     }
 
     private fun addLayouts() {
@@ -329,7 +331,7 @@ class MainActivity : AppCompatActivity() {
                                 chipIsSelected = true
 
                                 //Get and Draw allowed moves
-                                drawPossibleMoves(gameLogic.getAllowedMoves(i, j))
+                                drawPossibleMoves(gameLogic.getAllowedMoves(j, i))
                             } else {
                                 //unpick
                                 selectedChip = null
@@ -340,7 +342,6 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
-        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
     }
 
     private fun clearAllowedTiles() {
