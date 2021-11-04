@@ -7,7 +7,7 @@ class GameLogic : ViewModel() {
 
     var whichTurn: HasChip = HasChip.LIGHT
 
-     var chipsPositionArray = arrayOf<Array<HasChip>>()
+    var chipsPositionArray = arrayOf<Array<HasChip>>()
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
     private var allowedMovesCurrent = arrayOf<Array<Boolean>>()
 
@@ -54,11 +54,21 @@ class GameLogic : ViewModel() {
 
         //Find chip to eat
         //Direction to move by j Index
-        val inc=if(j2-j1>0){1}else{-1}
-        for (i in i1 until i2){
-            val j=j1+inc
-            if(chipsPositionArray[j][i]!=HasChip.EMPTY&&chipsPositionArray[j][i]!=whichTurn){
-                chipsPositionArray[j][i]=HasChip.EMPTY
+        val inc = if (j2 - j1 > 0) {
+            1
+        } else {
+            -1
+        }
+        for (i in i1 until i2) {
+            val j = j1 + inc
+            if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
+                chipsPositionArray[j][i] = HasChip.EMPTY
+            }
+        }
+        for (i in i2 until i1) {
+            val j = j1 + inc
+            if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
+                chipsPositionArray[j][i] = HasChip.EMPTY
             }
         }
 
@@ -108,12 +118,19 @@ class GameLogic : ViewModel() {
         //direction of chip move
         var directionInc = 0
         directionInc = if (whichTurn == HasChip.LIGHT) -1 else 1
+
+        //check move
         if (checkBoardBonds(j + directionInc, i)) {
             //Check left
-            checkDirection(j, i, directionInc,  1, allowedMoves)
+            checkDirectionMove(j, i, directionInc, 1, allowedMoves)
             //Check right
-            checkDirection(j, i, directionInc, -1, allowedMoves)
+            checkDirectionMove(j, i, directionInc, -1, allowedMoves)
         }
+        //check eat
+        checkEat(j, i,  1,  1, allowedMoves)
+        checkEat(j, i, -1, -1, allowedMoves)
+        checkEat(j, i, -1,  1, allowedMoves)
+        checkEat(j, i,  1, -1, allowedMoves)
     }
 
 
@@ -138,7 +155,7 @@ class GameLogic : ViewModel() {
      * @param dirIInc direction to increment i (+is left)
      * @param allowedMoves Matrix of allowed moves to update
      */
-    private fun checkDirection(
+    private fun checkDirectionMove(
         j: Int,
         i: Int,
         dirJInc: Int,
@@ -150,21 +167,35 @@ class GameLogic : ViewModel() {
             if (checkPosition(j + dirJInc, i + dirIInc, HasChip.EMPTY)) {
                 allowedMoves[j + dirJInc][i + dirIInc] = true
             }
-            //If next chip color is different
-            else if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
-                //check eat
-                    val oppositeChip = if(whichTurn==HasChip.LIGHT){HasChip.DARK}else{HasChip.LIGHT}
-                if (checkPosition(j + 1 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
-                    if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
-                        allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
-                    }
-                }
-            }
         }
     }
 
+    private fun checkEat(
+        j: Int,
+        i: Int,
+        dirJInc: Int,
+        dirIInc: Int, allowedMoves: Array<Array<Boolean>>
+    ): Boolean {
+        //If next chip color is different
+        if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
+            //check eat
+            val oppositeChip = if (whichTurn == HasChip.LIGHT) {
+                HasChip.DARK
+            } else {
+                HasChip.LIGHT
+            }
+            if (checkPosition(j + 1 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
+                if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
+                    allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     //Calculate All possible moves
-    fun calculateAllowedMovesForAll():Array<Array<Boolean>>  {
+    fun calculateAllowedMovesForAll(): Array<Array<Boolean>> {
         //reset allowed moves
         for (j in 0..7) {
             for (i in 0..7) {
