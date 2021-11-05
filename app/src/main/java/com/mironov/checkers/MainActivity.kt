@@ -102,35 +102,62 @@ class MainActivity : AppCompatActivity() {
             chipsArray += array
         }
 
-        //init black chips
-        for (j in 0..2 step 1) {
-            var firstTile = 0
-            if (j % 2 == 0) {
-                firstTile = 1
-            }
-            for (i in firstTile..7 step 2) {
-                initChip(ChipType.DARK, tilesArray[j][i])
-                gameLogic.setChipAtPos(i, j, ChipType.DARK)
-                selectedChip!!.tag = "$i,$j," + ChipType.DARK
-                chipsArray[j][i] = selectedChip
+        //custom positions
+        if(true){
+
+            var arr = arrayOf(
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.DARK,  ChipType.EMPTY,ChipType.DARK,  ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.LIGHT,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.DARK,  ChipType.EMPTY,ChipType.DARK,  ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY))
+
+            //Draw chips on UI
+            for (j in 0..7) {
+                for (i in 0..7) {
+                    val chipType = arr[j][i]
+                    if(chipType!=ChipType.EMPTY){
+                        initChip(chipType, tilesArray[j][i])
+                        gameLogic.setChipAtPos(i, j, chipType)
+                        selectedChip!!.tag = "$i,$j," + chipType
+                        chipsArray[j][i] = selectedChip}
+                }
             }
         }
+        else{
+            //init black chips
+            for (j in 0..2 step 1) {
+                var firstTile = 0
+                if (j % 2 == 0) {
+                    firstTile = 1
+                }
+                for (i in firstTile..7 step 2) {
+                    initChip(ChipType.DARK, tilesArray[j][i])
+                    gameLogic.setChipAtPos(i, j, ChipType.DARK)
+                    selectedChip!!.tag = "$i,$j," + ChipType.DARK
+                    chipsArray[j][i] = selectedChip
+                }
+            }
 
-        //init light chips
-        for (j in 5..7 step 1) {
-            var firstTile = 0
-            if (j % 2 == 0) {
-                firstTile = 1
+            //init light chips
+            for (j in 5..7 step 1) {
+                var firstTile = 0
+                if (j % 2 == 0) {
+                    firstTile = 1
+                }
+                for (i in firstTile..7 step 2) {
+                    initChip(ChipType.LIGHT, tilesArray[j][i])
+                    gameLogic.setChipAtPos(i, j, ChipType.LIGHT)
+                    selectedChip!!.tag = "$i,$j," + ChipType.LIGHT
+                    chipsArray[j][i] = selectedChip
+                }
             }
-            for (i in firstTile..7 step 2) {
-                initChip(ChipType.LIGHT, tilesArray[j][i])
-                gameLogic.setChipAtPos(i, j, ChipType.LIGHT)
-                selectedChip!!.tag = "$i,$j," + ChipType.LIGHT
-                chipsArray[j][i] = selectedChip
-            }
+
+            drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
         }
-
-        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
     }
 
     private fun addLayouts() {
