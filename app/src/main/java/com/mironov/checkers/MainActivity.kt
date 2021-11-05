@@ -109,9 +109,9 @@ class MainActivity : AppCompatActivity() {
                 firstTile = 1
             }
             for (i in firstTile..7 step 2) {
-                initChip(R.layout.dark_chip, tilesArray[j][i])
-                gameLogic.setChipAtPos(i, j, HasChip.DARK)
-                selectedChip!!.tag = "$i,$j," + HasChip.DARK
+                initChip(ChipType.DARK, tilesArray[j][i])
+                gameLogic.setChipAtPos(i, j, ChipType.DARK)
+                selectedChip!!.tag = "$i,$j," + ChipType.DARK
                 chipsArray[j][i] = selectedChip
             }
         }
@@ -123,9 +123,9 @@ class MainActivity : AppCompatActivity() {
                 firstTile = 1
             }
             for (i in firstTile..7 step 2) {
-                initChip(R.layout.light_chip, tilesArray[j][i])
-                gameLogic.setChipAtPos(i, j, HasChip.LIGHT)
-                selectedChip!!.tag = "$i,$j," + HasChip.LIGHT
+                initChip(ChipType.LIGHT, tilesArray[j][i])
+                gameLogic.setChipAtPos(i, j, ChipType.LIGHT)
+                selectedChip!!.tag = "$i,$j," + ChipType.LIGHT
                 chipsArray[j][i] = selectedChip
             }
         }
@@ -192,7 +192,7 @@ class MainActivity : AppCompatActivity() {
                     val chipData = selectedChip!!.tag.toString().split(',')
                     val i1 = chipData[0].toInt()
                     val j1 = chipData[1].toInt()
-                    val chipColor = HasChip.valueOf(chipData[2])
+                    val chipColor = ChipType.valueOf(chipData[2])
 
                     //Get tile index position
                     val tileIndexes = tile.tag.toString().split(',')
@@ -219,16 +219,11 @@ class MainActivity : AppCompatActivity() {
                         //Update chips on UI
                         for (j in 0..7) {
                             for (i in 0..7) {
-                                val chipColor = gameLogic.chipsPositionArray[j][i]
-                                if (chipColor == HasChip.DARK) {
-                                    initChip(R.layout.dark_chip, tilesArray[j][i])
-                                    selectedChip!!.tag = "$i,$j," + chipColor
-                                    chipsArray[j][i] = selectedChip
-                                } else if (chipColor == HasChip.LIGHT) {
-                                    initChip(R.layout.light_chip, tilesArray[j][i])
-                                    selectedChip!!.tag = "$i,$j," + chipColor
-                                    chipsArray[j][i] = selectedChip
-                                }
+                                val chipType = gameLogic.chipsPositionArray[j][i]
+                                if(chipType!=ChipType.EMPTY){
+                                initChip(chipType, tilesArray[j][i])
+                                    selectedChip!!.tag = "$i,$j," + chipType
+                                    chipsArray[j][i] = selectedChip}
                             }
                         }
 
@@ -264,8 +259,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun initChip(layout: Int, tile: View) {
+    fun initChip(chipType: ChipType, tile: View) {
+        var layout=0
+        if (chipType == ChipType.DARK||chipType == ChipType.DARK_CROWN) {
+           layout=R.layout.dark_chip
+        } else {
+            layout=R.layout.light_chip
+        }
+
         val chip = this.layoutInflater.inflate(layout, null)
+
+        if(chipType == ChipType.DARK_CROWN||chipType == ChipType.LIGHT_CROWN){chip.findViewById<ImageView>(R.id.crown)
+            .setImageDrawable(resources.getDrawable(R.drawable.ic_crown))}
 
         gameArea.addView(chip, tileSize, tileSize)
 
@@ -302,7 +307,7 @@ class MainActivity : AppCompatActivity() {
                             val chipData = selectedChip!!.tag.toString().split(',')
                             val i = chipData[0].toInt()
                             val j = chipData[1].toInt()
-                            val chipColor = HasChip.valueOf(chipData[2])
+                            val chipColor = ChipType.valueOf(chipData[2])
 
                             //Check with color is turn
                             if (gameLogic.whichTurn == chipColor) {

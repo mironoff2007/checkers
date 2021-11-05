@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 
 class GameLogic : ViewModel() {
 
-    var whichTurn: HasChip = HasChip.LIGHT
+    var whichTurn: ChipType = ChipType.LIGHT
 
-    var chipsPositionArray = arrayOf<Array<HasChip>>()
+    var chipsPositionArray = arrayOf<Array<ChipType>>()
 
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
 
@@ -18,12 +18,12 @@ class GameLogic : ViewModel() {
     var multipleEat = false
 
     init {
-        var array = arrayOf<HasChip>()
+        var array = arrayOf<ChipType>()
         var arrayMoves = arrayOf<Boolean>()
         var arrayMovesAll = arrayOf<Boolean>()
         for (j in 0..7) {
             for (i in 0..7) {
-                array += HasChip.EMPTY
+                array += ChipType.EMPTY
                 arrayMoves += false
                 arrayMovesAll += false
             }
@@ -31,7 +31,7 @@ class GameLogic : ViewModel() {
             allowedMovesAll += arrayMovesAll
             allowedMovesCurrent += arrayMoves
             //clear arrays
-            array = arrayOf<HasChip>()
+            array = arrayOf<ChipType>()
             arrayMoves = arrayOf<Boolean>()
             arrayMovesAll = arrayOf<Boolean>()
         }
@@ -46,7 +46,7 @@ class GameLogic : ViewModel() {
     fun moveIsAllowed(i1: Int, j1: Int, i2: Int, j2: Int): Boolean {
         multipleEat = false
         calculateAllowedMoves(j1, i1, allowedMovesCurrent)
-        if (chipsPositionArray[j2][i2] == HasChip.EMPTY) {
+        if (chipsPositionArray[j2][i2] == ChipType.EMPTY) {
             return allowedMovesCurrent[j2][i2]
         }
         return false
@@ -58,31 +58,44 @@ class GameLogic : ViewModel() {
      * @param i2 index i of tile to put chip
      * @param j2 index j of tile to put chip
      */
-    fun updatePosition(i1: Int, j1: Int, i2: Int, j2: Int, chipColor: HasChip):Boolean {
+    fun updatePosition(i1: Int, j1: Int, i2: Int, j2: Int, chipColor: ChipType):Boolean {
         //Remove chip from old position
-        chipsPositionArray[j1][i1] = HasChip.EMPTY
+        chipsPositionArray[j1][i1] = ChipType.EMPTY
+
+        //Make crown
+        if(chipColor==ChipType.LIGHT&&j2==0){
+            //Put chip to new position
+            chipsPositionArray[j2][i2] =ChipType.LIGHT_CROWN
+        }
+        else if(chipColor==ChipType.DARK&&j2==7){
+            //Put chip to new position
+            chipsPositionArray[j2][i2] = ChipType.DARK_CROWN
+        }
+        else{
         //Put chip to new position
-        chipsPositionArray[j2][i2] = chipColor
+        chipsPositionArray[j2][i2] = chipColor}
 
         //Find chip to eat
         //Direction to move by j Index
-        val inc = if (j2 - j1 > 0) {
+        var inc = if (j2 - j1 > 0) {
             1
         } else {
             -1
         }
-        var j = j1
-        for (i in i1 until i2) {
-            if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
-                chipsPositionArray[j][i] = HasChip.EMPTY
-                isAnyChipEaten = true
-            }
-            j = j + inc
+        var i_max=0
+        var i_min=0
+        if (i2 - i1 > 0) {
+            i_max=i2
+            i_min=i1
+        } else {
+            i_max=i1
+            i_min=i2
+            inc=-1*inc
         }
-        j = j1
-        for (i in i2 until i1) {
-            if (chipsPositionArray[j][i] != HasChip.EMPTY && chipsPositionArray[j][i] != whichTurn) {
-                chipsPositionArray[j][i] = HasChip.EMPTY
+        var j = j1
+        for (i in i_min until i_max) {
+            if (chipsPositionArray[j][i] != ChipType.EMPTY && chipsPositionArray[j][i] != whichTurn) {
+                chipsPositionArray[j][i] = ChipType.EMPTY
                 isAnyChipEaten = true
             }
             j = j + inc
@@ -107,14 +120,14 @@ class GameLogic : ViewModel() {
 
     fun changeTurn() {
         //Change who moves`
-        if (whichTurn == HasChip.LIGHT) {
-            whichTurn = HasChip.DARK
+        if (whichTurn == ChipType.LIGHT) {
+            whichTurn = ChipType.DARK
         } else {
-            whichTurn = HasChip.LIGHT
+            whichTurn = ChipType.LIGHT
         }
     }
 
-    fun setChipAtPos(i: Int, j: Int, chipColor: HasChip) {
+    fun setChipAtPos(i: Int, j: Int, chipColor: ChipType) {
         chipsPositionArray[j][i] = chipColor
     }
 
@@ -151,7 +164,7 @@ class GameLogic : ViewModel() {
     ) {
         //direction of chip move
         var directionInc = 0
-        directionInc = if (whichTurn == HasChip.LIGHT) -1 else 1
+        directionInc = if (whichTurn == ChipType.LIGHT) -1 else 1
 
         //check move
         if (checkBoardBonds(j + directionInc, i)) {
@@ -205,7 +218,7 @@ class GameLogic : ViewModel() {
         return false
     }
 
-    private fun checkPosition(j: Int, i: Int, type: HasChip): Boolean {
+    private fun checkPosition(j: Int, i: Int, type: ChipType): Boolean {
         if (chipsPositionArray[j][i] == type) {
             return true
         }
@@ -228,7 +241,7 @@ class GameLogic : ViewModel() {
     ) {
         if (checkBoardBonds(j + dirJInc, i + dirIInc)) {
             //if empty
-            if (checkPosition(j + dirJInc, i + dirIInc, HasChip.EMPTY)) {
+            if (checkPosition(j + dirJInc, i + dirIInc, ChipType.EMPTY)) {
                 allowedMoves[j + dirJInc][i + dirIInc] = true
             }
         }
@@ -253,13 +266,13 @@ class GameLogic : ViewModel() {
         //If next chip color is different
         if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
             //check eat
-            val oppositeChip = if (whichTurn == HasChip.LIGHT) {
-                HasChip.DARK
+            val oppositeChip = if (whichTurn == ChipType.LIGHT) {
+                ChipType.DARK
             } else {
-                HasChip.LIGHT
+                ChipType.LIGHT
             }
             if (checkPosition(j + 1 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
-                if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, HasChip.EMPTY)) {
+                if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, ChipType.EMPTY)) {
                     allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
                     if (multipleEat) {
                         checkEatAllDir(j + 2 * dirJInc, i + 2 * dirIInc, direction, allowedMoves)
