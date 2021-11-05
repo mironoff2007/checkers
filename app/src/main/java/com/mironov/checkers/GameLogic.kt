@@ -77,28 +77,28 @@ class GameLogic : ViewModel() {
 
         //Find chip to eat
         //Direction to move by j Index
-        var inc = if (j2 - j1 > 0) {
-            1
+        var incJ = 0
+        if (j2 - j1 > 0) {
+            incJ=1
         } else {
-            -1
+            incJ=-1
         }
-        var i_max=0
-        var i_min=0
+        var incI = 0
         if (i2 - i1 > 0) {
-            i_max=i2
-            i_min=i1
+            incI=1
         } else {
-            i_max=i1
-            i_min=i2
-            inc=-1*inc
+            incI=-1
         }
-        var j = j1
-        for (i in i_min until i_max) {
+
+        var i=i1
+        var j=j1
+        while (i!=i2-incI) {
+             i=i+incI
+             j=j+incJ
             if (chipsPositionArray[j][i] != ChipType.EMPTY && chipsPositionArray[j][i] != whichTurn) {
                 chipsPositionArray[j][i] = ChipType.EMPTY
                 isAnyChipEaten = true
             }
-            j = j + inc
         }
 
         //Check if any chip is eaten
