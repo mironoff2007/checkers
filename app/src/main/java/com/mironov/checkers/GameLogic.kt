@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 class GameLogic : ViewModel() {
 
     var whichTurn: ChipType = ChipType.LIGHT
+    var whoMoves: ChipType = ChipType.LIGHT
 
     var chipsPositionArray = arrayOf<Array<ChipType>>()
 
@@ -45,6 +46,7 @@ class GameLogic : ViewModel() {
      */
     fun moveIsAllowed(i1: Int, j1: Int, i2: Int, j2: Int): Boolean {
         multipleEat = false
+        whoMoves=chipsPositionArray[j1][j2]
         calculateAllowedMoves(j1, i1, allowedMovesCurrent)
         if (chipsPositionArray[j2][i2] == ChipType.EMPTY) {
             return allowedMovesCurrent[j2][i2]
@@ -162,6 +164,7 @@ class GameLogic : ViewModel() {
         i: Int,
         allowedMoves: Array<Array<Boolean>>
     ) {
+        whoMoves=chipsPositionArray[j][i]
         //direction of chip move
         var directionInc = 0
         directionInc = if (whichTurn == ChipType.LIGHT) -1 else 1
@@ -174,15 +177,13 @@ class GameLogic : ViewModel() {
             checkDirectionMove(j, i, directionInc, -1, allowedMoves)
 
             //If crown, check all directions
-            if(chipsPositionArray[j][i]==ChipType.LIGHT_CROWN||chipsPositionArray[j][i]==ChipType.DARK_CROWN){
+            if(whoMoves==ChipType.LIGHT_CROWN||whoMoves==ChipType.DARK_CROWN){
                 //Check left
                 checkDirectionMove(j, i, -directionInc, 1, allowedMoves)
                 //Check right
                 checkDirectionMove(j, i, -directionInc, -1, allowedMoves)
             }
         }
-        //check eat
-        checkEatAllDir(j, i, Direction.NONE, allowedMoves)
     }
 
 
@@ -227,7 +228,7 @@ class GameLogic : ViewModel() {
     }
 
     private fun checkPosition(j: Int, i: Int, type: ChipType): Boolean {
-        if (chipsPositionArray[j][i] == type) {
+        if (chipsPositionArray[j][i].toString().split('_')[0] == type.toString()) {
             return true
         }
         return false
@@ -247,7 +248,7 @@ class GameLogic : ViewModel() {
         dirIInc: Int,
         allowedMoves: Array<Array<Boolean>>
     ) {
-        if (chipsPositionArray[j][i] == ChipType.DARK_CROWN || chipsPositionArray[j][i] == ChipType.LIGHT_CROWN) {
+        if (whoMoves == ChipType.DARK_CROWN || whoMoves == ChipType.LIGHT_CROWN) {
             //Crown chips
                 var n=dirJInc
                 var k=dirIInc
@@ -256,7 +257,7 @@ class GameLogic : ViewModel() {
                 n=n+dirJInc
                 k=k+dirIInc
             }
-
+            checkEatAllDir(j + n-dirJInc,i + k-dirIInc,Direction.NONE,allowedMoves)
         }
         else {
             //Common chips
@@ -264,6 +265,10 @@ class GameLogic : ViewModel() {
                 //if empty
                 if (checkPosition(j + dirJInc, i + dirIInc, ChipType.EMPTY)) {
                     allowedMoves[j + dirJInc][i + dirIInc] = true
+                }
+                else{
+                    //check eat
+                    checkEatAllDir(j, i, Direction.NONE, allowedMoves)
                 }
             }
         }
@@ -295,7 +300,13 @@ class GameLogic : ViewModel() {
             }
             if (checkPosition(j + 1 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
                 if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, ChipType.EMPTY)) {
+                    //Can eat
                     allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
+                    //If crown check to move far after eat
+                    if(whoMoves == ChipType.DARK_CROWN || whoMoves == ChipType.LIGHT_CROWN){
+                        //check far moves in this direction
+                        checkDirectionMove(j + 2 * dirJInc,i + 2 * dirIInc,dirJInc,dirIInc,allowedMoves)
+                    }
                     if (multipleEat) {
                         checkEatAllDir(j + 2 * dirJInc, i + 2 * dirIInc, direction, allowedMoves)
                     }
@@ -317,7 +328,7 @@ class GameLogic : ViewModel() {
         //Find chips for move
         for (j in 0..7) {
             for (i in 0..7) {
-                if (chipsPositionArray[j][i] == whichTurn) {
+                if (chipsPositionArray[j][i].toString().split("_")[0] == whichTurn.toString()) {
                     //Check possible moves if tile is empty
                     calculateAllowedMoves(j, i, allowedMovesAll)
                 }

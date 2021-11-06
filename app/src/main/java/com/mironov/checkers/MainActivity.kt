@@ -151,9 +151,8 @@ class MainActivity : AppCompatActivity() {
                     chipsArray[j][i] = selectedChip
                 }
             }
-
-            drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
         }
+        drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
     }
 
     private fun addLayouts() {
