@@ -66,7 +66,7 @@ class FlowLayout : ViewGroup {
     }
 
     override fun generateDefaultLayoutParams(): ViewGroup.LayoutParams {
-        return LayoutParams(1, 1) // default of 1px spacing
+        return LayoutParams(0, 0)
     }
 
     override fun checkLayoutParams(p: ViewGroup.LayoutParams): Boolean {

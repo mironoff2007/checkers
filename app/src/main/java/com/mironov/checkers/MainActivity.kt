@@ -60,19 +60,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
-            R.id.make_crown -> {
-                if (selectedChip != null) {
-                    selectedChip!!.findViewById<ImageView>(R.id.crown)
-                        .setImageDrawable(resources.getDrawable(R.drawable.ic_crown))
-                }
-                true
-            }
-            R.id.make_common -> {
-                if (selectedChip != null) {
-                    selectedChip!!.findViewById<ImageView>(R.id.crown).setImageResource(0)
-                }
-                true
-            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -99,18 +86,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         //custom positions
-        if(true){
+        if(false){
 
-            var arr = arrayOf(
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.DARK,  ChipType.EMPTY,ChipType.DARK,  ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.LIGHT_CROWN,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.DARK,  ChipType.EMPTY,ChipType.EMPTY,  ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.DARK,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY))
-
+            var arr = CustomPositions.position1
             //Draw chips on UI
             for (j in 0..7) {
                 for (i in 0..7) {
@@ -177,7 +155,7 @@ class MainActivity : AppCompatActivity() {
             tileImage.layoutParams.width = tileSize
 
             //Set spacing here
-            tile.layoutParams = FlowLayout.LayoutParams(1, 1)
+            tile.layoutParams = FlowLayout.LayoutParams(0, 0)
 
             //Calc indexes, move to next line
             i++

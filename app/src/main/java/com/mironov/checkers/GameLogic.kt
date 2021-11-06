@@ -38,6 +38,19 @@ class GameLogic : ViewModel() {
         }
     }
 
+    /** Returns tile id increment to step in this direction
+     * @param direction Direction of move
+     */
+    private fun getDirectionIncrements(direction: Direction): Array<Int> {
+        return when (direction) {
+            Direction.DL -> arrayOf(1, -1)
+            Direction.DR -> arrayOf(1, 1)
+            Direction.UR -> arrayOf(-1, 1)
+            Direction.UL -> arrayOf(-1, -1)
+            Direction.NONE -> arrayOf(0, 0)
+        }
+    }
+
     /** Is move from i1,j1 to i2,j2 is allowed
      * @param i1 picked tile index i
      * @param j1 picked tile index j
@@ -46,7 +59,7 @@ class GameLogic : ViewModel() {
      */
     fun moveIsAllowed(i1: Int, j1: Int, i2: Int, j2: Int): Boolean {
         multipleEat = false
-        whoMoves=chipsPositionArray[j1][j2]
+        whoMoves = chipsPositionArray[j1][j2]
         calculateAllowedMoves(j1, i1, allowedMovesCurrent)
         if (chipsPositionArray[j2][i2] == ChipType.EMPTY) {
             return allowedMovesCurrent[j2][i2]
@@ -78,24 +91,23 @@ class GameLogic : ViewModel() {
 
         //Find chip to eat
         //Direction to move by j Index
-        var incJ = 0
-        if (j2 - j1 > 0) {
-            incJ = 1
+        var incJ: Int = if (j2 - j1 > 0) {
+            1
         } else {
-            incJ = -1
+            -1
         }
-        var incI = 0
-        if (i2 - i1 > 0) {
-            incI = 1
+
+        var incI: Int = if (i2 - i1 > 0) {
+            1
         } else {
-            incI = -1
+            -1
         }
 
         var i = i1
         var j = j1
         while (i != i2 - incI) {
-            i = i + incI
-            j = j + incJ
+            i += incI
+            j += incJ
             if (chipsPositionArray[j][i] != ChipType.EMPTY && chipsPositionArray[j][i] != whichTurn) {
                 chipsPositionArray[j][i] = ChipType.EMPTY
                 isAnyChipEaten = true
@@ -120,12 +132,12 @@ class GameLogic : ViewModel() {
         }
     }
 
-    fun changeTurn() {
+    private fun changeTurn() {
         //Change who moves`
-        if (whichTurn == ChipType.LIGHT) {
-            whichTurn = ChipType.DARK
+        whichTurn = if (whichTurn == ChipType.LIGHT) {
+            ChipType.DARK
         } else {
-            whichTurn = ChipType.LIGHT
+            ChipType.LIGHT
         }
     }
 
@@ -164,24 +176,40 @@ class GameLogic : ViewModel() {
         i: Int,
         allowedMoves: Array<Array<Boolean>>
     ) {
-        whoMoves=chipsPositionArray[j][i]
+        whoMoves = chipsPositionArray[j][i]
         //direction of chip move
-        var directionInc = 0
-        directionInc = if (whichTurn == ChipType.LIGHT) -1 else 1
 
-        //check move
-        if (checkBoardBonds(j + directionInc, i)) {
-            //Check left
-            checkDirectionMove(j, i, directionInc, 1, allowedMoves)
-            //Check right
-            checkDirectionMove(j, i, directionInc, -1, allowedMoves)
+        //If crown, check all directions
+        if (whoMoves == ChipType.LIGHT_CROWN || whoMoves == ChipType.DARK_CROWN) {
+            //Check eat from current position
+            checkEatAllDir(j, i, Direction.NONE, allowedMoves)
 
-            //If crown, check all directions
-            if(whoMoves==ChipType.LIGHT_CROWN||whoMoves==ChipType.DARK_CROWN){
-                //Check left
-                checkDirectionMove(j, i, -directionInc, 1, allowedMoves)
-                //Check right
-                checkDirectionMove(j, i, -directionInc, -1, allowedMoves)
+            //Check UP and LEFT
+            checkDirectionMove(j, i, Direction.UL, allowedMoves)
+            //Check UP and RIGHT
+            checkDirectionMove(j, i, Direction.UR, allowedMoves)
+            //Check DOWN and RIGHT
+            checkDirectionMove(j, i, Direction.DR, allowedMoves)
+            //Check DOWN and LEFT
+            checkDirectionMove(j, i, Direction.DL, allowedMoves)
+        }
+        //check move for common chips
+        else {
+            //Check eat from current position
+            checkEatAllDir(j, i, Direction.NONE, allowedMoves)
+
+            if (whichTurn == ChipType.LIGHT) {
+                //Check UP and LEFT
+                checkDirectionMove(j, i, Direction.UL, allowedMoves)
+                //Check UP and RIGHT
+                checkDirectionMove(j, i, Direction.UR, allowedMoves)
+            }
+            else{
+                //Dark chips
+                //Check DOWN and RIGHT
+                checkDirectionMove(j, i, Direction.DR, allowedMoves)
+                //Check DOWN and LEFT
+                checkDirectionMove(j, i, Direction.DL, allowedMoves)
             }
         }
     }
@@ -202,19 +230,19 @@ class GameLogic : ViewModel() {
         canEat = false
         //UP and LEFT
         if (ignoreDirection != Direction.DR) {
-            checkEat(j, i, 1, 1, Direction.UL, allowedMoves)
+            checkEat(j, i, Direction.UL, allowedMoves)
         }
         //DOWN and RIGHT
         if (ignoreDirection != Direction.UL) {
-            checkEat(j, i, -1, -1, Direction.DR, allowedMoves)
+            checkEat(j, i, Direction.DR, allowedMoves)
         }
-        //DOWN and Left
+        //DOWN and LEFT
         if (ignoreDirection != Direction.UR) {
-            checkEat(j, i, -1, 1, Direction.DL, allowedMoves)
+            checkEat(j, i, Direction.DL, allowedMoves)
         }
         //UP and Right
         if (ignoreDirection != Direction.DL) {
-            checkEat(j, i, 1, -1, Direction.UR, allowedMoves)
+            checkEat(j, i, Direction.UR, allowedMoves)
         }
         return canEat
     }
@@ -235,40 +263,37 @@ class GameLogic : ViewModel() {
     }
 
     /**Check if tile is empty to move to it
-     * * @param j chip index j
+     * @param j chip index j
      * @param i chip index i
-     * @param dirJInc direction to increment j (+is down)
-     * @param dirIInc direction to increment i (+is left)
      * @param allowedMoves Matrix of allowed moves to update
      */
     private fun checkDirectionMove(
         j: Int,
         i: Int,
-        dirJInc: Int,
-        dirIInc: Int,
+        direction: Direction,
         allowedMoves: Array<Array<Boolean>>
     ) {
+        val dirIncArr = getDirectionIncrements(direction)
+        val stepJ = dirIncArr[0]
+        val stepI = dirIncArr[1]
+
         if (whoMoves == ChipType.DARK_CROWN || whoMoves == ChipType.LIGHT_CROWN) {
             //Crown chips
-                var n=dirJInc
-                var k=dirIInc
-            while(checkBoardBonds(j + n, i + k)&&checkPosition(j + n, i + k, ChipType.EMPTY)){
+            var n = stepJ
+            var k = stepI
+            while (checkBoardBonds(j + n, i + k) && checkPosition(j + n, i + k, ChipType.EMPTY)) {
                 allowedMoves[j + n][i + k] = true
-                n=n+dirJInc
-                k=k+dirIInc
+                n = n + stepJ
+                k = k + stepI
             }
-            checkEatAllDir(j + n-dirJInc,i + k-dirIInc,Direction.NONE,allowedMoves)
-        }
-        else {
+            checkEat(j + n-stepJ, i + k-stepI, direction, allowedMoves)
+
+        } else {
             //Common chips
-            if (checkBoardBonds(j + dirJInc, i + dirIInc)) {
+            if (checkBoardBonds(j + stepJ, i + stepI)) {
                 //if empty
-                if (checkPosition(j + dirJInc, i + dirIInc, ChipType.EMPTY)) {
-                    allowedMoves[j + dirJInc][i + dirIInc] = true
-                }
-                else{
-                    //check eat
-                    checkEatAllDir(j, i, Direction.NONE, allowedMoves)
+                if (checkPosition(j + stepJ, i + stepI, ChipType.EMPTY)) {
+                    allowedMoves[j + stepJ][i + stepI] = true
                 }
             }
         }
@@ -277,38 +302,47 @@ class GameLogic : ViewModel() {
     /**Check chips near to eat in spec direction
      * @param j chip index j
      * @param i chip index i
-     * @param dirJInc direction to increment j (+is down)
-     * @param dirIInc direction to increment i (+is left)
-     * @param direction Ignore this direction on next eat step
+     * @param checkDirection Ignore this direction on next eat step
      * @param allowedMoves Matrix of allowed moves to update
      */
     private fun checkEat(
         j: Int,
         i: Int,
-        dirJInc: Int,
-        dirIInc: Int,
-        direction: Direction,
+        checkDirection: Direction,
         allowedMoves: Array<Array<Boolean>>
     ) {
+        val dirIncArr = getDirectionIncrements(checkDirection)
+        val stepJ = dirIncArr[0]
+        val stepI = dirIncArr[1]
         //If next chip color is different
-        if (checkBoardBonds(j + 2 * dirJInc, i + 2 * dirIInc)) {
+        if (checkBoardBonds(j + 2 * stepJ, i + 2 * stepI)) {
             //check eat
             val oppositeChip = if (whichTurn == ChipType.LIGHT) {
                 ChipType.DARK
             } else {
                 ChipType.LIGHT
             }
-            if (checkPosition(j + 1 * dirJInc, i + 1 * dirIInc, oppositeChip)) {
-                if (checkPosition(j + 2 * dirJInc, i + 2 * dirIInc, ChipType.EMPTY)) {
+            if (checkPosition(j + 1 * stepJ, i + 1 * stepI, oppositeChip)) {
+                if (checkPosition(j + 2 * stepJ, i + 2 * stepI, ChipType.EMPTY)) {
                     //Can eat
-                    allowedMoves[j + 2 * dirJInc][i + 2 * dirIInc] = true
+                    allowedMoves[j + 2 * stepJ][i + 2 * stepI] = true
                     //If crown check to move far after eat
-                    if(whoMoves == ChipType.DARK_CROWN || whoMoves == ChipType.LIGHT_CROWN){
+                    if (whoMoves == ChipType.DARK_CROWN || whoMoves == ChipType.LIGHT_CROWN) {
                         //check far moves in this direction
-                        checkDirectionMove(j + 2 * dirJInc,i + 2 * dirIInc,dirJInc,dirIInc,allowedMoves)
+                        checkDirectionMove(
+                            j + 2 * stepJ,
+                            i + 2 * stepI,
+                            checkDirection,
+                            allowedMoves
+                        )
                     }
                     if (multipleEat) {
-                        checkEatAllDir(j + 2 * dirJInc, i + 2 * dirIInc, direction, allowedMoves)
+                        checkEatAllDir(
+                            j + 2 * stepJ,
+                            i + 2 * stepI,
+                            checkDirection,
+                            allowedMoves
+                        )
                     }
                     canEat = true
                 }
