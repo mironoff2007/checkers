@@ -17,6 +17,7 @@ class GameLogic : ViewModel() {
     var isAnyChipEaten = false
     var canEat = false
     var multipleEat = false
+    var restrictMove = false
 
     init {
         var array = arrayOf<ChipType>()
@@ -119,14 +120,17 @@ class GameLogic : ViewModel() {
             //Find next "eat" step
             if (!checkEatAllDir(j2, i2, Direction.NONE, allowedMovesCurrent)) {
                 changeTurn()
+                restrictMove = false
                 isAnyChipEaten = false
                 return false
             } else {
+                restrictMove = true
                 return true
             }
         } else {
             //change turn if not eaten
             changeTurn()
+            restrictMove = false
             isAnyChipEaten = false
             return false
         }
@@ -179,37 +183,42 @@ class GameLogic : ViewModel() {
         whoMoves = chipsPositionArray[j][i]
         //direction of chip move
 
-        //If crown, check all directions
-        if (whoMoves == ChipType.LIGHT_CROWN || whoMoves == ChipType.DARK_CROWN) {
+        //If multiple eat, restrict not eat
+        if (restrictMove) {
             //Check eat from current position
             checkEatAllDir(j, i, Direction.NONE, allowedMoves)
+        } else {
+            //If crown, check all directions
+            if (whoMoves == ChipType.LIGHT_CROWN || whoMoves == ChipType.DARK_CROWN) {
+                //Check eat from current position
+                checkEatAllDir(j, i, Direction.NONE, allowedMoves)
 
-            //Check UP and LEFT
-            checkDirectionMove(j, i, Direction.UL, allowedMoves)
-            //Check UP and RIGHT
-            checkDirectionMove(j, i, Direction.UR, allowedMoves)
-            //Check DOWN and RIGHT
-            checkDirectionMove(j, i, Direction.DR, allowedMoves)
-            //Check DOWN and LEFT
-            checkDirectionMove(j, i, Direction.DL, allowedMoves)
-        }
-        //check move for common chips
-        else {
-            //Check eat from current position
-            checkEatAllDir(j, i, Direction.NONE, allowedMoves)
-
-            if (whichTurn == ChipType.LIGHT) {
                 //Check UP and LEFT
                 checkDirectionMove(j, i, Direction.UL, allowedMoves)
                 //Check UP and RIGHT
                 checkDirectionMove(j, i, Direction.UR, allowedMoves)
-            }
-            else{
-                //Dark chips
                 //Check DOWN and RIGHT
                 checkDirectionMove(j, i, Direction.DR, allowedMoves)
                 //Check DOWN and LEFT
                 checkDirectionMove(j, i, Direction.DL, allowedMoves)
+            }
+            //check move for common chips
+            else {
+                //Check eat from current position
+                checkEatAllDir(j, i, Direction.NONE, allowedMoves)
+
+                if (whichTurn == ChipType.LIGHT) {
+                    //Check UP and LEFT
+                    checkDirectionMove(j, i, Direction.UL, allowedMoves)
+                    //Check UP and RIGHT
+                    checkDirectionMove(j, i, Direction.UR, allowedMoves)
+                } else {
+                    //Dark chips
+                    //Check DOWN and RIGHT
+                    checkDirectionMove(j, i, Direction.DR, allowedMoves)
+                    //Check DOWN and LEFT
+                    checkDirectionMove(j, i, Direction.DL, allowedMoves)
+                }
             }
         }
     }
@@ -286,7 +295,7 @@ class GameLogic : ViewModel() {
                 n = n + stepJ
                 k = k + stepI
             }
-            checkEat(j + n-stepJ, i + k-stepI, direction, allowedMoves)
+            checkEat(j + n - stepJ, i + k - stepI, direction, allowedMoves)
 
         } else {
             //Common chips
