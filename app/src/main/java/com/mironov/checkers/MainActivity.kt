@@ -19,10 +19,6 @@ import androidx.core.view.marginLeft
 import androidx.lifecycle.ViewModelProvider
 import android.os.SystemClock
 
-
-
-
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var gameLogic: GameLogic
@@ -109,10 +105,10 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
                 arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
                 arrayOf(ChipType.EMPTY, ChipType.DARK,  ChipType.EMPTY,ChipType.DARK,  ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.LIGHT,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.DARK,  ChipType.EMPTY,ChipType.DARK,  ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.LIGHT_CROWN,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.DARK,  ChipType.EMPTY,ChipType.EMPTY,  ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
                 arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
-                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY),
+                arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.DARK,ChipType.EMPTY, ChipType.EMPTY),
                 arrayOf(ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY, ChipType.EMPTY,ChipType.EMPTY, ChipType.EMPTY))
 
             //Draw chips on UI
@@ -334,10 +330,10 @@ class MainActivity : AppCompatActivity() {
                             val chipData = selectedChip!!.tag.toString().split(',')
                             val i = chipData[0].toInt()
                             val j = chipData[1].toInt()
-                            val chipColor = ChipType.valueOf(chipData[2])
+                            val chipColor = ChipType.valueOf(chipData[2]).toString().split("_")[0]
 
                             //Check with color is turn
-                            if (gameLogic.whichTurn == chipColor) {
+                            if (gameLogic.whichTurn.toString() == chipColor) {
                                 //pick chip
                                 v.alpha = 0.5f
                                 chipIsSelected = true

@@ -58,43 +58,42 @@ class GameLogic : ViewModel() {
      * @param i2 index i of tile to put chip
      * @param j2 index j of tile to put chip
      */
-    fun updatePosition(i1: Int, j1: Int, i2: Int, j2: Int, chipColor: ChipType):Boolean {
+    fun updatePosition(i1: Int, j1: Int, i2: Int, j2: Int, chipColor: ChipType): Boolean {
         //Remove chip from old position
         chipsPositionArray[j1][i1] = ChipType.EMPTY
 
         //Make crown
-        if(chipColor==ChipType.LIGHT&&j2==0){
+        if (chipColor == ChipType.LIGHT && j2 == 0) {
             //Put chip to new position
-            chipsPositionArray[j2][i2] =ChipType.LIGHT_CROWN
-        }
-        else if(chipColor==ChipType.DARK&&j2==7){
+            chipsPositionArray[j2][i2] = ChipType.LIGHT_CROWN
+        } else if (chipColor == ChipType.DARK && j2 == 7) {
             //Put chip to new position
             chipsPositionArray[j2][i2] = ChipType.DARK_CROWN
+        } else {
+            //Put chip to new position
+            chipsPositionArray[j2][i2] = chipColor
         }
-        else{
-        //Put chip to new position
-        chipsPositionArray[j2][i2] = chipColor}
 
         //Find chip to eat
         //Direction to move by j Index
         var incJ = 0
         if (j2 - j1 > 0) {
-            incJ=1
+            incJ = 1
         } else {
-            incJ=-1
+            incJ = -1
         }
         var incI = 0
         if (i2 - i1 > 0) {
-            incI=1
+            incI = 1
         } else {
-            incI=-1
+            incI = -1
         }
 
-        var i=i1
-        var j=j1
-        while (i!=i2-incI) {
-             i=i+incI
-             j=j+incJ
+        var i = i1
+        var j = j1
+        while (i != i2 - incI) {
+            i = i + incI
+            j = j + incJ
             if (chipsPositionArray[j][i] != ChipType.EMPTY && chipsPositionArray[j][i] != whichTurn) {
                 chipsPositionArray[j][i] = ChipType.EMPTY
                 isAnyChipEaten = true
@@ -108,8 +107,9 @@ class GameLogic : ViewModel() {
                 changeTurn()
                 isAnyChipEaten = false
                 return false
+            } else {
+                return true
             }
-            else {return true}
         } else {
             //change turn if not eaten
             changeTurn()
@@ -172,6 +172,14 @@ class GameLogic : ViewModel() {
             checkDirectionMove(j, i, directionInc, 1, allowedMoves)
             //Check right
             checkDirectionMove(j, i, directionInc, -1, allowedMoves)
+
+            //If crown, check all directions
+            if(chipsPositionArray[j][i]==ChipType.LIGHT_CROWN||chipsPositionArray[j][i]==ChipType.DARK_CROWN){
+                //Check left
+                checkDirectionMove(j, i, -directionInc, 1, allowedMoves)
+                //Check right
+                checkDirectionMove(j, i, -directionInc, -1, allowedMoves)
+            }
         }
         //check eat
         checkEatAllDir(j, i, Direction.NONE, allowedMoves)
@@ -239,10 +247,24 @@ class GameLogic : ViewModel() {
         dirIInc: Int,
         allowedMoves: Array<Array<Boolean>>
     ) {
-        if (checkBoardBonds(j + dirJInc, i + dirIInc)) {
-            //if empty
-            if (checkPosition(j + dirJInc, i + dirIInc, ChipType.EMPTY)) {
-                allowedMoves[j + dirJInc][i + dirIInc] = true
+        if (chipsPositionArray[j][i] == ChipType.DARK_CROWN || chipsPositionArray[j][i] == ChipType.LIGHT_CROWN) {
+            //Crown chips
+                var n=dirJInc
+                var k=dirIInc
+            while(checkBoardBonds(j + n, i + k)&&checkPosition(j + n, i + k, ChipType.EMPTY)){
+                allowedMoves[j + n][i + k] = true
+                n=n+dirJInc
+                k=k+dirIInc
+            }
+
+        }
+        else {
+            //Common chips
+            if (checkBoardBonds(j + dirJInc, i + dirIInc)) {
+                //if empty
+                if (checkPosition(j + dirJInc, i + dirIInc, ChipType.EMPTY)) {
+                    allowedMoves[j + dirJInc][i + dirIInc] = true
+                }
             }
         }
     }
