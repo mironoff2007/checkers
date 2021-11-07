@@ -9,15 +9,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
 import androidx.lifecycle.ViewModelProvider
 import android.os.SystemClock
+import android.widget.*
 import com.mironov.checkers.*
 import com.mironov.checkers.model.ChipType
 
@@ -30,6 +27,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var outBoardTop: LinearLayout
     private lateinit var outBoardBot: LinearLayout
+
+    private lateinit var buttonNext: Button
+    private lateinit var buttonPrev: Button
 
     private var selectedChip: View? = null
 
@@ -47,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         gameArea = findViewById(R.id.gameArea)
         outBoardTop = findViewById(R.id.outBoardTop)
         outBoardBot = findViewById(R.id.outBoardBot)
+        buttonNext = findViewById(R.id.buttonNext)
+        buttonPrev = findViewById(R.id.buttonPrev)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -78,6 +80,23 @@ class MainActivity : AppCompatActivity() {
 
         findViews()
         addLayouts()
+        initButtonsListeners()
+    }
+
+    private fun initButtonsListeners() {
+        buttonNext.setOnClickListener {
+            gameLogic.nextPosition()
+            updateUI()
+            //Draw all moves
+            drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+        }
+
+        buttonPrev.setOnClickListener {
+            gameLogic.prevPosition()
+            updateUI()
+            //Draw all moves
+            drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -133,6 +152,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+        gameLogic.savePosition()
     }
 
     private fun addLayouts() {
@@ -208,26 +228,11 @@ class MainActivity : AppCompatActivity() {
                         multipleEat=gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
                         chipIsSelected=false
 
-                        //UI clear chips
-                        for (j in 0..7) {
-                            for (i in 0..7) {
-                                val chip = chipsArray[j][i]
-                                gameArea.removeView(chip)
-                                chip?.setOnTouchListener(null)
-                                chipsArray[j][i] = null
-                            }
-                        }
+                        //Save position
+                        gameLogic.savePosition()
 
-                        //Update chips on UI
-                        for (j in 0..7) {
-                            for (i in 0..7) {
-                                val chipType = gameLogic.chipsPositionArray[j][i]
-                                if(chipType!= ChipType.EMPTY){
-                                initChip(chipType, tilesArray[j][i])
-                                    selectedChip!!.tag = "$i,$j," + chipType
-                                    chipsArray[j][i] = selectedChip}
-                            }
-                        }
+                        //Draw chips
+                        updateUI()
 
                         //Draw all moves
                         drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
@@ -245,6 +250,29 @@ class MainActivity : AppCompatActivity() {
         }
         //Add tiles line to array of tiles
         tilesArray += array
+    }
+
+    private fun updateUI() {
+        //UI clear chips
+        for (j in 0..7) {
+            for (i in 0..7) {
+                val chip = chipsArray[j][i]
+                gameArea.removeView(chip)
+                chip?.setOnTouchListener(null)
+                chipsArray[j][i] = null
+            }
+        }
+
+        //Update chips on UI
+        for (j in 0..7) {
+            for (i in 0..7) {
+                val chipType = gameLogic.chipsPositionArray[j][i]
+                if(chipType!= ChipType.EMPTY){
+                    initChip(chipType, tilesArray[j][i])
+                    selectedChip!!.tag = "$i,$j," + chipType
+                    chipsArray[j][i] = selectedChip}
+            }
+        }
     }
 
     private fun getCoordinates(view: View): Array<Float> {

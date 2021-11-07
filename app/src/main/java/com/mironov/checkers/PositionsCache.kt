@@ -4,43 +4,49 @@ import com.mironov.checkers.model.ChipType
 import com.mironov.checkers.model.Position
 
 class PositionsCache {
-    var id = 0
+    private var id = -1
     private var positionsArray = arrayOf<Array<Array<ChipType>>>()
     private var whoMovesArray = arrayOf<ChipType>()
 
+    fun Array<Array<ChipType>>.copy() = Array(size) { get(it).clone() }
+
     fun addPosition(position: Array<Array<ChipType>>, turn: ChipType) {
+        id++
         if(id>=whoMovesArray.size){
-        positionsArray += position
+        positionsArray += position.copy()
         whoMovesArray += turn
-        id++}
+        }
         else{
-            id++
-            positionsArray [id]= position
-            whoMovesArray += turn
+            positionsArray [id]= position.clone()
+            whoMovesArray [id]= turn
         }
     }
 
     fun prevPosition(): Position? {
-        id--
         val position = Position()
-        return if (id < whoMovesArray.size) {
-            position.whoMovesArray = whoMovesArray[id]
-            position.positionArray = positionsArray[id]
+        return if (id -1>=0 ) {
+            id--
+            position.whichTurn = whoMovesArray[id]
+            position.positionArray = positionsArray[id].copy()
             position
         } else {
-            null
+            position.whichTurn = whoMovesArray[0]
+            position.positionArray = positionsArray[0].copy()
+            position
         }
     }
 
     fun nextPosition(): Position? {
-        id++
         val position = Position()
-        return if (id < whoMovesArray.size) {
-            position.whoMovesArray = whoMovesArray[id]
-            position.positionArray = positionsArray[id]
+        return if (id+1 < whoMovesArray.size) {
+            id++
+            position.whichTurn = whoMovesArray[id]
+            position.positionArray = positionsArray[id].copy()
             position
         } else {
-            null
+            position.whichTurn = whoMovesArray[id]
+            position.positionArray = positionsArray[id].copy()
+            position
         }
     }
 }

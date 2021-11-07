@@ -2,7 +2,7 @@ package com.mironov.checkers.model
 
 class Position {
     var positionArray= arrayOf<Array<ChipType>>()
-    var whoMovesArray:ChipType=ChipType.EMPTY
+    var whichTurn:ChipType=ChipType.EMPTY
 
     init {
         var array = arrayOf<ChipType>()

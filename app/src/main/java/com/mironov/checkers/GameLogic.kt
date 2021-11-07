@@ -18,6 +18,8 @@ class GameLogic : ViewModel() {
 
     private var dummy = arrayOf<Array<Boolean>>()
 
+    private val positionCache=PositionsCache()
+
     var lastMoveDirection: Direction = Direction.NONE
 
     var isAnyChipEaten = false
@@ -48,6 +50,22 @@ class GameLogic : ViewModel() {
             arrayMovesAll = arrayOf<Boolean>()
             arrayDummy = arrayOf<Boolean>()
         }
+    }
+
+    fun savePosition(){
+        positionCache.addPosition(chipsPositionArray,whichTurn)
+    }
+
+    fun prevPosition(){
+       val position = positionCache.prevPosition()
+        whichTurn=position!!.whichTurn
+        chipsPositionArray=position.positionArray.clone()
+    }
+
+    fun nextPosition(){
+        val position = positionCache.nextPosition()
+        whichTurn=position!!.whichTurn
+        chipsPositionArray=position.positionArray.clone()
     }
 
     /** Returns tile id increment to step in this direction
