@@ -118,7 +118,7 @@ class GameLogic : ViewModel() {
 
         var i = i1
         var j = j1
-        while (i != i2 - incI) {
+        while ((i != i2 - incI)&&checkBoardBonds(j,i)) {
             i += incI
             j += incJ
             if (chipsPositionArray[j][i] != ChipType.EMPTY && chipsPositionArray[j][i] != whichTurn) {
