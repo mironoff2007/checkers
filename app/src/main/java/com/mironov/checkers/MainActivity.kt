@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         //custom positions
         if(false){
 
-            var arr = CustomPositions.position2
+            var arr = CustomPositions.position1
             //Draw chips on UI
             for (j in 0..7) {
                 for (i in 0..7) {

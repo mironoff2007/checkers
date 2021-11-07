@@ -28,7 +28,7 @@ class GameLogic : ViewModel() {
         var array = arrayOf<ChipType>()
         var arrayMoves = arrayOf<Boolean>()
         var arrayMovesAll = arrayOf<Boolean>()
-        var arrayDummy= arrayOf<Boolean>()
+        var arrayDummy = arrayOf<Boolean>()
         for (j in 0..7) {
             for (i in 0..7) {
                 array += ChipType.EMPTY
@@ -39,12 +39,12 @@ class GameLogic : ViewModel() {
             chipsPositionArray += array
             allowedMovesAll += arrayMovesAll
             allowedMovesCurrent += arrayMoves
-            dummy+=arrayDummy
+            dummy += arrayDummy
             //clear arrays
             array = arrayOf<ChipType>()
             arrayMoves = arrayOf<Boolean>()
             arrayMovesAll = arrayOf<Boolean>()
-            arrayDummy=arrayOf<Boolean>()
+            arrayDummy = arrayOf<Boolean>()
         }
     }
 
@@ -118,7 +118,7 @@ class GameLogic : ViewModel() {
 
         var i = i1
         var j = j1
-        while ((i != i2 - incI)&&checkBoardBonds(j,i)) {
+        while ((i != i2 - incI) && checkBoardBonds(j, i)) {
             i += incI
             j += incJ
             if (chipsPositionArray[j][i] != ChipType.EMPTY && chipsPositionArray[j][i] != whichTurn) {
@@ -132,14 +132,27 @@ class GameLogic : ViewModel() {
             //Find next "eat" step
             if (whoMoves == ChipType.LIGHT_CROWN || whoMoves == ChipType.DARK_CROWN) {
                 canEat = false
-                //Check UP and LEFT
-                checkDirectionMove(j2, i2, Direction.UL, allowedMovesCurrent)
-                //Check UP and RIGHT
-                checkDirectionMove(j2, i2, Direction.UR, allowedMovesCurrent)
-                //Check DOWN and RIGHT
-                checkDirectionMove(j2, i2, Direction.DR, allowedMovesCurrent)
-                //Check DOWN and LEFT
-                checkDirectionMove(j2, i2, Direction.DL, allowedMovesCurrent)
+
+                //Restrict backward eat after eat
+                val ignoreDirection = oppositeDirection(lastMoveDirection)
+                when {
+                    ignoreDirection != Direction.UL -> {
+                        //Check UP and LEFT
+                        checkDirectionMove(j2, i2, Direction.UL, allowedMovesCurrent)
+                    }
+                    ignoreDirection != Direction.UR -> {
+                        //Check UP and RIGHT
+                        checkDirectionMove(j2, i2, Direction.UR, allowedMovesCurrent)
+                    }
+                    ignoreDirection != Direction.DR -> {
+                        //Check DOWN and RIGHT
+                        checkDirectionMove(j2, i2, Direction.DR, allowedMovesCurrent)
+                    }
+                    ignoreDirection != Direction.DL -> {
+                        //Check DOWN and LEFT
+                        checkDirectionMove(j2, i2, Direction.DL, allowedMovesCurrent)
+                    }
+                }
 
                 if (canEat) {
                     restrictMove = true
@@ -243,9 +256,9 @@ class GameLogic : ViewModel() {
 
             if (whoMoves == ChipType.LIGHT_CROWN || whoMoves == ChipType.DARK_CROWN) {
                 //Ignore direction last Move Direction abd find to eat
-                    complexCrownEat=true
+                complexCrownEat = true
                 complexCrownEatFind(j, i, lastMoveDirection, allowedMoves)
-                complexCrownEat=false
+                complexCrownEat = false
             }
 
         } else {
@@ -307,7 +320,7 @@ class GameLogic : ViewModel() {
         checkDirectionMove(j, i, Direction.DR, dummy)
         //Check DOWN and LEFT
         checkDirectionMove(j, i, Direction.DL, dummy)
-        while (checkBoardBonds(j+n , i+k ) && checkPosition(j+k , i+n , ChipType.EMPTY)) {
+        while (checkBoardBonds(j + n, i + k) && checkPosition(j + k, i + n, ChipType.EMPTY)) {
             //Check eat from current position
             checkEatAllDir(j, i, Direction.NONE, dummy)
 
@@ -455,7 +468,7 @@ class GameLogic : ViewModel() {
                     //Can eat
                     allowedMoves[j + 2 * stepJ][i + 2 * stepI] = true
                     //Complex crown eat
-                    if(complexCrownEat){
+                    if (complexCrownEat) {
                         allowedMovesCurrent[j + 2 * stepJ][i + 2 * stepI] = true
                     }
                     //If crown check to move far after eat
