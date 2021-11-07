@@ -1,4 +1,4 @@
-package com.mironov.checkers
+package com.mironov.checkers.ui
 
 import android.content.Context
 import android.util.AttributeSet

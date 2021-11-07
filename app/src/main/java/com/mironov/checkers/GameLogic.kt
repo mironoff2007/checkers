@@ -1,6 +1,8 @@
 package com.mironov.checkers
 
 import androidx.lifecycle.ViewModel
+import com.mironov.checkers.model.ChipType
+import com.mironov.checkers.model.Direction
 
 
 class GameLogic : ViewModel() {

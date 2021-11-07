@@ -1,4 +1,4 @@
-package com.mironov.checkers
+package com.mironov.checkers.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
@@ -18,6 +18,8 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
 import androidx.lifecycle.ViewModelProvider
 import android.os.SystemClock
+import com.mironov.checkers.*
+import com.mironov.checkers.model.ChipType
 
 class MainActivity : AppCompatActivity() {
 
@@ -93,7 +95,7 @@ class MainActivity : AppCompatActivity() {
             for (j in 0..7) {
                 for (i in 0..7) {
                     val chipType = arr[j][i]
-                    if(chipType!=ChipType.EMPTY){
+                    if(chipType!= ChipType.EMPTY){
                         initChip(chipType, tilesArray[j][i])
                         gameLogic.setChipAtPos(i, j, chipType)
                         selectedChip!!.tag = "$i,$j," + chipType
@@ -220,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                         for (j in 0..7) {
                             for (i in 0..7) {
                                 val chipType = gameLogic.chipsPositionArray[j][i]
-                                if(chipType!=ChipType.EMPTY){
+                                if(chipType!= ChipType.EMPTY){
                                 initChip(chipType, tilesArray[j][i])
                                     selectedChip!!.tag = "$i,$j," + chipType
                                     chipsArray[j][i] = selectedChip}
@@ -261,15 +263,17 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     fun initChip(chipType: ChipType, tile: View) {
         var layout=0
-        if (chipType == ChipType.DARK||chipType == ChipType.DARK_CROWN) {
-           layout=R.layout.dark_chip
+        if (chipType == ChipType.DARK ||chipType == ChipType.DARK_CROWN) {
+           layout= R.layout.dark_chip
         } else {
-            layout=R.layout.light_chip
+            layout= R.layout.light_chip
         }
 
         val chip = this.layoutInflater.inflate(layout, null)
 
-        if(chipType == ChipType.DARK_CROWN||chipType == ChipType.LIGHT_CROWN){chip.findViewById<ImageView>(R.id.crown)
+        if(chipType == ChipType.DARK_CROWN ||chipType == ChipType.LIGHT_CROWN){chip.findViewById<ImageView>(
+            R.id.crown
+        )
             .setImageDrawable(resources.getDrawable(R.drawable.ic_crown))}
 
         gameArea.addView(chip, tileSize, tileSize)

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".ui.MainActivity"
     android:orientation="vertical">
 
 
@@ -21,7 +21,7 @@
         android:layout_marginRight="0dp"
         android:background="@color/black">
 
-        <com.mironov.checkers.FlowLayout
+        <com.mironov.checkers.ui.FlowLayout
             android:id="@+id/flowLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
