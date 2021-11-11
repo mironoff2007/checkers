@@ -95,9 +95,10 @@ class MainActivity : AppCompatActivity() {
             else{
                 buttonNext.isEnabled=false
             }
-            updateUI()
+
             //Draw all moves
             drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+            updateChips()
         }
 
         buttonPrev.setOnClickListener {
@@ -109,9 +110,10 @@ class MainActivity : AppCompatActivity() {
             else{
                 buttonPrev.isEnabled=false
             }
-            updateUI()
+
             //Draw all moves
             drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+            updateChips()
         }
     }
 
@@ -122,52 +124,8 @@ class MainActivity : AppCompatActivity() {
             chipsArray += array
         }
 
-        //custom positions
-        if(false){
-
-            var arr = CustomPositions.position1
-            //Draw chips on UI
-            for (j in 0..7) {
-                for (i in 0..7) {
-                    val chipType = arr[j][i]
-                    if(chipType!= ChipType.EMPTY){
-                        initChip(chipType, tilesArray[j][i])
-                        gameLogic.setChipAtPos(i, j, chipType)
-                        selectedChip!!.tag = "$i,$j," + chipType
-                        chipsArray[j][i] = selectedChip}
-                }
-            }
-        }
-        else{
-            //init black chips
-            for (j in 0..2 step 1) {
-                var firstTile = 0
-                if (j % 2 == 0) {
-                    firstTile = 1
-                }
-                for (i in firstTile..7 step 2) {
-                    initChip(ChipType.DARK, tilesArray[j][i])
-                    gameLogic.setChipAtPos(i, j, ChipType.DARK)
-                    selectedChip!!.tag = "$i,$j," + ChipType.DARK
-                    chipsArray[j][i] = selectedChip
-                }
-            }
-
-            //init light chips
-            for (j in 5..7 step 1) {
-                var firstTile = 0
-                if (j % 2 == 0) {
-                    firstTile = 1
-                }
-                for (i in firstTile..7 step 2) {
-                    initChip(ChipType.LIGHT, tilesArray[j][i])
-                    gameLogic.setChipAtPos(i, j, ChipType.LIGHT)
-                    selectedChip!!.tag = "$i,$j," + ChipType.LIGHT
-                    chipsArray[j][i] = selectedChip
-                }
-            }
-        }
         drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+        updateChips()
         gameLogic.savePosition()
     }
 
@@ -251,11 +209,11 @@ class MainActivity : AppCompatActivity() {
                         buttonPrev.isEnabled=true
                         buttonNext.isEnabled=false
 
-                        //Draw chips
-                        updateUI()
-
                         //Draw all moves
                         drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
+
+                        //Draw chips
+                        updateChips()
 
                         if(multipleEat){
                             touchView(chipsArray[j2][i2]!!)
@@ -272,7 +230,7 @@ class MainActivity : AppCompatActivity() {
         tilesArray += array
     }
 
-    private fun updateUI() {
+    private fun updateChips() {
         //UI clear chips
         for (j in 0..7) {
             for (i in 0..7) {
@@ -288,9 +246,10 @@ class MainActivity : AppCompatActivity() {
             for (i in 0..7) {
                 val chipType = gameLogic.chipsPositionArray[j][i]
                 if(chipType!= ChipType.EMPTY){
-                    initChip(chipType, tilesArray[j][i])
+                    initChip(chipType, tilesArray[j][i],gameLogic.chipAllowedToMove[j][i])
                     selectedChip!!.tag = "$i,$j," + chipType
-                    chipsArray[j][i] = selectedChip}
+                    chipsArray[j][i] = selectedChip
+                }
             }
         }
     }
@@ -309,7 +268,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun initChip(chipType: ChipType, tile: View) {
+    fun initChip(chipType: ChipType, tile: View, allowedToMove:Boolean) {
         var layout=0
         if (chipType == ChipType.DARK ||chipType == ChipType.DARK_CROWN) {
            layout= R.layout.dark_chip
@@ -318,6 +277,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val chip = this.layoutInflater.inflate(layout, null)
+
+        //Mark chip which can move
+        val allowedCircle = chip.findViewById<ImageView>(R.id.allowedToMove)
+        if(allowedToMove){allowedCircle.setImageDrawable(resources.getDrawable(R.drawable.ic_allowed_circle))}
 
         if(chipType == ChipType.DARK_CROWN ||chipType == ChipType.LIGHT_CROWN){chip.findViewById<ImageView>(
             R.id.crown

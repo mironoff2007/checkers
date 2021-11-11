@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Jura/AndroidStudioProjects/checkers/app/src/main/res/drawable/ic__allowed_circle.xml" value="0.1" />
         <entry key="..\:/Users/Jura/AndroidStudioProjects/checkers/app/src/main/res/drawable/ic_allowedMove.xml" value="0.1" />
+        <entry key="..\:/Users/Jura/AndroidStudioProjects/checkers/app/src/main/res/drawable/ic_allowed_circle.xml" value="0.1" />
         <entry key="..\:/Users/Jura/AndroidStudioProjects/checkers/app/src/main/res/drawable/ic_cell_dark.xml" value="0.18541666666666667" />
         <entry key="..\:/Users/Jura/AndroidStudioProjects/checkers/app/src/main/res/drawable/ic_cell_light.xml" value="0.1" />
         <entry key="..\:/Users/Jura/AndroidStudioProjects/checkers/app/src/main/res/drawable/ic_dark_chip.xml" value="0.1" />
