@@ -4,21 +4,24 @@ import com.mironov.checkers.model.ChipType
 import com.mironov.checkers.model.Position
 
 class PositionsCache {
-    private var id = -1
+    var id = -1
+    var idMax=0
     private var positionsArray = arrayOf<Array<Array<ChipType>>>()
     private var whoMovesArray = arrayOf<ChipType>()
 
-    fun Array<Array<ChipType>>.copy() = Array(size) { get(it).clone() }
+    private fun Array<Array<ChipType>>.copy() = Array(size) { get(it).clone() }
 
     fun addPosition(position: Array<Array<ChipType>>, turn: ChipType) {
         id++
         if(id>=whoMovesArray.size){
         positionsArray += position.copy()
         whoMovesArray += turn
+            idMax=id
         }
         else{
             positionsArray [id]= position.clone()
             whoMovesArray [id]= turn
+            idMax=id
         }
     }
 
@@ -38,7 +41,7 @@ class PositionsCache {
 
     fun nextPosition(): Position? {
         val position = Position()
-        return if (id+1 < whoMovesArray.size) {
+        return if (id < idMax) {
             id++
             position.whichTurn = whoMovesArray[id]
             position.positionArray = positionsArray[id].copy()

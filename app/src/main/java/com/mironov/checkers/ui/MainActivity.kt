@@ -81,18 +81,34 @@ class MainActivity : AppCompatActivity() {
         findViews()
         addLayouts()
         initButtonsListeners()
+        buttonNext.isEnabled=false
+        buttonPrev.isEnabled=false
     }
 
     private fun initButtonsListeners() {
         buttonNext.setOnClickListener {
-            gameLogic.nextPosition()
+            if(gameLogic.nextPosition()){
+                buttonNext.isEnabled=true
+                buttonPrev.isEnabled=true
+                chipIsSelected=false
+            }
+            else{
+                buttonNext.isEnabled=false
+            }
             updateUI()
             //Draw all moves
             drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
         }
 
         buttonPrev.setOnClickListener {
-            gameLogic.prevPosition()
+            if(gameLogic.prevPosition()){
+                buttonNext.isEnabled=true
+                buttonPrev.isEnabled=true
+                chipIsSelected=false
+            }
+            else{
+                buttonPrev.isEnabled=false
+            }
             updateUI()
             //Draw all moves
             drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
@@ -230,6 +246,10 @@ class MainActivity : AppCompatActivity() {
 
                         //Save position
                         gameLogic.savePosition()
+
+                        //Update buttons state
+                        buttonPrev.isEnabled=true
+                        buttonNext.isEnabled=false
 
                         //Draw chips
                         updateUI()

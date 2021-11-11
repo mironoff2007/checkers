@@ -56,16 +56,18 @@ class GameLogic : ViewModel() {
         positionCache.addPosition(chipsPositionArray,whichTurn)
     }
 
-    fun prevPosition(){
+    fun prevPosition():Boolean{
        val position = positionCache.prevPosition()
         whichTurn=position!!.whichTurn
         chipsPositionArray=position.positionArray.clone()
+        return positionCache.id!=0
     }
 
-    fun nextPosition(){
+    fun nextPosition():Boolean{
         val position = positionCache.nextPosition()
         whichTurn=position!!.whichTurn
         chipsPositionArray=position.positionArray.clone()
+        return positionCache.id!=positionCache.idMax
     }
 
     /** Returns tile id increment to step in this direction
