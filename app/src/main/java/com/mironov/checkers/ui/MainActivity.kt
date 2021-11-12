@@ -20,8 +20,8 @@ import com.mironov.checkers.model.ChipType
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var gameLogic: GameLogic
     private var tileSize = 0
+    private lateinit var gameLogic: GameLogic
     private lateinit var gameBoard: FlowLayout
     private lateinit var gameArea: FrameLayout
 
@@ -219,11 +219,8 @@ class MainActivity : AppCompatActivity() {
                             touchView(chipsArray[j2][i2]!!)
                         }
 
-                    } else {
-                        Toast.makeText(this, "Нельзя так ходить", Toast.LENGTH_LONG)
                     }
                 }
-                Log.d("My_tag", "tile Number=" + tile.tag)
             }
         }
         //Add tiles line to array of tiles

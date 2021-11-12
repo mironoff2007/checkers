@@ -11,13 +11,9 @@ class GameLogic : ViewModel() {
     var whoMoves: ChipType = ChipType.LIGHT
 
     var chipsPositionArray = arrayOf<Array<ChipType>>()
-
     var chipAllowedToMove = arrayOf<Array<Boolean>>()
-
     private var allowedMovesAll = arrayOf<Array<Boolean>>()
-
     private var allowedMovesCurrent = arrayOf<Array<Boolean>>()
-
     private var dummy = arrayOf<Array<Boolean>>()
 
     private val positionCache = PositionsCache()
@@ -26,7 +22,7 @@ class GameLogic : ViewModel() {
 
     var isAnyChipEaten = false
     var canEat = false
-    var canMove=false
+    var canMove = false
     var multipleEat = false
     var restrictMove = false
     var complexCrownEat = false
@@ -60,7 +56,6 @@ class GameLogic : ViewModel() {
         //Init chips
         //custom positions
         if (false) {
-
             val arr = CustomPositions.position1
             for (j in 0..7) {
                 for (i in 0..7) {
@@ -81,7 +76,6 @@ class GameLogic : ViewModel() {
                     chipsPositionArray[j][i] = ChipType.DARK
                 }
             }
-
             //init light chips
             for (j in 5..7 step 1) {
                 var firstTile = 0
@@ -218,13 +212,14 @@ class GameLogic : ViewModel() {
                         checkDirectionMove(j2, i2, Direction.DL, allowedMovesCurrent)
                     }
                 }
-
+                //for chain eat
                 if (canEat) {
                     restrictMove = true
                     return true
                 }
             }
 
+            //Check if can eat
             if (!checkEatAllDir(j2, i2, Direction.NONE, allowedMovesCurrent)) {
                 changeTurn()
                 restrictMove = false
@@ -243,7 +238,6 @@ class GameLogic : ViewModel() {
         }
     }
 
-
     private fun clearAllowedChips() {
         for (j in 0..7) {
             for (i in 0..7) {
@@ -252,6 +246,12 @@ class GameLogic : ViewModel() {
         }
     }
 
+    /**
+     * @param i1 picked chip index i
+     * @param j1 picked chip index j
+     * @param i2 tile index i to move to
+     * @param j2 tile index j to move to
+     */
     private fun getDirection(j1: Int, i1: Int, j2: Int, i2: Int): Direction {
         if (j2 - j1 > 0) {
             //DOWN
@@ -272,7 +272,6 @@ class GameLogic : ViewModel() {
                 Direction.UL
             }
         }
-
     }
 
     private fun changeTurn() {
@@ -284,10 +283,9 @@ class GameLogic : ViewModel() {
         }
     }
 
-//Get allowed directions for Current chip
-    /**
-     * @param i picked tile index i
-     * @param j picked tile index j
+    /**Get allowed directions for Current chip
+     * @param i picked chip index i
+     * @param j picked chip index j
      */
     fun getAllowedMoves(
         i: Int,
@@ -304,8 +302,7 @@ class GameLogic : ViewModel() {
         return allowedMovesCurrent
     }
 
-//Calculate allowed directions for Current chip
-    /**
+    /**Calculate allowed directions for Current chip
      * @param i picked tile index i
      * @param j picked tile index j
      * @param allowedMoves Matrix of allowed moves to update
@@ -315,7 +312,7 @@ class GameLogic : ViewModel() {
         i: Int,
         allowedMoves: Array<Array<Boolean>>
     ) {
-        canMove=false
+        canMove = false
         whoMoves = chipsPositionArray[j][i]
         //direction of chip move
 
@@ -493,19 +490,18 @@ class GameLogic : ViewModel() {
             var k = stepI
             while (checkBoardBonds(j + n, i + k) && checkPosition(j + n, i + k, ChipType.EMPTY)) {
                 allowedMoves[j + n][i + k] = true
-                canMove=true
+                canMove = true
                 n += stepJ
                 k += stepI
             }
             checkEat(j + n - stepJ, i + k - stepI, direction, allowedMoves)
-
         } else {
             //Common chips
             if (checkBoardBonds(j + stepJ, i + stepI)) {
                 //if empty
                 if (checkPosition(j + stepJ, i + stepI, ChipType.EMPTY)) {
                     allowedMoves[j + stepJ][i + stepI] = true
-                    canMove=true
+                    canMove = true
                 }
             }
         }
@@ -577,8 +573,8 @@ class GameLogic : ViewModel() {
                 if (chipsPositionArray[j][i].toString().split("_")[0] == whichTurn.toString()) {
                     //Check possible moves if tile is empty
                     calculateAllowedMoves(j, i, allowedMovesAll)
-                    if (canEat||canMove) {
-                        chipAllowedToMove[j][i]=true
+                    if (canEat || canMove) {
+                        chipAllowedToMove[j][i] = true
                     }
                 }
             }
