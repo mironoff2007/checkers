@@ -3,22 +3,28 @@ package com.mironov.checkers.ui
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.marginLeft
 import androidx.lifecycle.ViewModelProvider
-import android.os.SystemClock
-import android.widget.*
-import com.mironov.checkers.*
+import com.mironov.checkers.GameLogic
+import com.mironov.checkers.R
+import com.mironov.checkers.databinding.ActivityMainBinding
 import com.mironov.checkers.model.ChipType
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     private var tileSize = 0
     private lateinit var gameLogic: GameLogic
@@ -40,15 +46,15 @@ class MainActivity : AppCompatActivity() {
 
     private var screenWidth = 0
 
-    private  var multipleEat=false
+    private var multipleEat = false
 
     private fun findViews() {
-        gameBoard = findViewById(R.id.flowLayout)
-        gameArea = findViewById(R.id.gameArea)
-        outBoardTop = findViewById(R.id.outBoardTop)
-        outBoardBot = findViewById(R.id.outBoardBot)
-        buttonNext = findViewById(R.id.buttonNext)
-        buttonPrev = findViewById(R.id.buttonPrev)
+        gameBoard = binding.flowLayout
+        gameArea = binding.gameArea
+        outBoardTop = binding.outBoardTop
+        outBoardBot = binding.outBoardBot
+        buttonNext = binding.buttonNext
+        buttonPrev = binding.buttonPrev
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -72,6 +78,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        binding = ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
+
         gameLogic = ViewModelProvider(this).get(GameLogic::class.java)
 
         val displayMetrics = DisplayMetrics()
@@ -81,36 +89,32 @@ class MainActivity : AppCompatActivity() {
         findViews()
         addLayouts()
         initButtonsListeners()
-        buttonNext.isEnabled=false
-        buttonPrev.isEnabled=false
+        buttonNext.isEnabled = false
+        buttonPrev.isEnabled = false
     }
 
     private fun initButtonsListeners() {
         buttonNext.setOnClickListener {
-            if(gameLogic.nextPosition()){
-                buttonNext.isEnabled=true
-                buttonPrev.isEnabled=true
-                chipIsSelected=false
+            if (gameLogic.nextPosition()) {
+                buttonNext.isEnabled = true
+                buttonPrev.isEnabled = true
+                chipIsSelected = false
+            } else {
+                buttonNext.isEnabled = false
             }
-            else{
-                buttonNext.isEnabled=false
-            }
-
             //Draw all moves
             drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
             updateChips()
         }
 
         buttonPrev.setOnClickListener {
-            if(gameLogic.prevPosition()){
-                buttonNext.isEnabled=true
-                buttonPrev.isEnabled=true
-                chipIsSelected=false
+            if (gameLogic.prevPosition()) {
+                buttonNext.isEnabled = true
+                buttonPrev.isEnabled = true
+                chipIsSelected = false
+            } else {
+                buttonPrev.isEnabled = false
             }
-            else{
-                buttonPrev.isEnabled=false
-            }
-
             //Draw all moves
             drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
             updateChips()
@@ -199,15 +203,15 @@ class MainActivity : AppCompatActivity() {
                     if (gameLogic.moveIsAllowed(i1, j1, i2, j2)) {
 
                         //Update logic
-                        multipleEat=gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
-                        chipIsSelected=false
+                        multipleEat = gameLogic.updatePosition(i1, j1, i2, j2, chipColor)
+                        chipIsSelected = false
 
                         //Save position
                         gameLogic.savePosition()
 
                         //Update buttons state
-                        buttonPrev.isEnabled=true
-                        buttonNext.isEnabled=false
+                        buttonPrev.isEnabled = true
+                        buttonNext.isEnabled = false
 
                         //Draw all moves
                         drawPossibleMoves(gameLogic.calculateAllowedMovesForAll())
@@ -215,7 +219,7 @@ class MainActivity : AppCompatActivity() {
                         //Draw chips
                         updateChips()
 
-                        if(multipleEat){
+                        if (multipleEat) {
                             touchView(chipsArray[j2][i2]!!)
                         }
 
@@ -242,8 +246,8 @@ class MainActivity : AppCompatActivity() {
         for (j in 0..7) {
             for (i in 0..7) {
                 val chipType = gameLogic.chipsPositionArray[j][i]
-                if(chipType!= ChipType.EMPTY){
-                    initChip(chipType, tilesArray[j][i],gameLogic.chipAllowedToMove[j][i])
+                if (chipType != ChipType.EMPTY) {
+                    initChip(chipType, tilesArray[j][i], gameLogic.chipAllowedToMove[j][i])
                     selectedChip!!.tag = "$i,$j," + chipType
                     chipsArray[j][i] = selectedChip
                 }
@@ -265,24 +269,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun initChip(chipType: ChipType, tile: View, allowedToMove:Boolean) {
-        var layout=0
-        if (chipType == ChipType.DARK ||chipType == ChipType.DARK_CROWN) {
-           layout= R.layout.dark_chip
+    fun initChip(chipType: ChipType, tile: View, allowedToMove: Boolean) {
+        var layout = 0
+        if (chipType == ChipType.DARK || chipType == ChipType.DARK_CROWN) {
+            layout = R.layout.dark_chip
         } else {
-            layout= R.layout.light_chip
+            layout = R.layout.light_chip
         }
 
         val chip = this.layoutInflater.inflate(layout, null)
 
         //Mark chip which can move
         val allowedCircle = chip.findViewById<ImageView>(R.id.allowedToMove)
-        if(allowedToMove){allowedCircle.setImageDrawable(resources.getDrawable(R.drawable.ic_allowed_circle))}
+        if (allowedToMove) {
+            allowedCircle.setImageDrawable(resources.getDrawable(R.drawable.ic_allowed_circle))
+        }
 
-        if(chipType == ChipType.DARK_CROWN ||chipType == ChipType.LIGHT_CROWN){chip.findViewById<ImageView>(
-            R.id.crown
-        )
-            .setImageDrawable(resources.getDrawable(R.drawable.ic_crown))}
+        if (chipType == ChipType.DARK_CROWN || chipType == ChipType.LIGHT_CROWN) {
+            chip.findViewById<ImageView>(
+                R.id.crown
+            )
+                .setImageDrawable(resources.getDrawable(R.drawable.ic_crown))
+        }
 
         gameArea.addView(chip, tileSize, tileSize)
 
@@ -304,7 +312,7 @@ class MainActivity : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     val a = v.alpha
 
-                    if (a < 1&&!multipleEat) {
+                    if (a < 1 && !multipleEat) {
                         //put chip
                         selectedChip = null
                         v.alpha = 1f
@@ -346,7 +354,7 @@ class MainActivity : AppCompatActivity() {
             MotionEvent.obtain(
                 SystemClock.uptimeMillis(),
                 SystemClock.uptimeMillis(),
-                MotionEvent.ACTION_DOWN ,
+                MotionEvent.ACTION_DOWN,
                 0F,
                 0F,
                 0
@@ -356,13 +364,14 @@ class MainActivity : AppCompatActivity() {
             MotionEvent.obtain(
                 SystemClock.uptimeMillis(),
                 SystemClock.uptimeMillis(),
-                MotionEvent.ACTION_UP ,
+                MotionEvent.ACTION_UP,
                 0F,
                 0F,
                 0
             )
         )
     }
+
     private fun clearAllowedTiles() {
         for (j in 0..7) {
             for (i in 0..7) {

@@ -1,11 +1,15 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 31
     buildToolsVersion '30.0.3'
 
+    viewBinding {
+        enabled true
+    }
     defaultConfig {
         applicationId "com.mironov.checkers"
         minSdkVersion 16
@@ -36,4 +40,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 }
