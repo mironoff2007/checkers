@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         screenWidth = displayMetrics.widthPixels
 
         findViews()
+        gameBoard.numberViewsInLine = 8
         addLayouts()
         initButtonsListeners()
         buttonNext.isEnabled = false
@@ -349,7 +350,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun touchView(view: View) {
+    private fun touchView(view: View) {
         view.dispatchTouchEvent(
             MotionEvent.obtain(
                 SystemClock.uptimeMillis(),
